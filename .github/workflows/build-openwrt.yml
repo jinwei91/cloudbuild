@@ -16,11 +16,13 @@ on:
     inputs:
       ssh:
         description: 'SSH connection to Actions'
-        required: false
+        ##mod##required: false
+        required: true
         default: 'false'
 
 env:
-  REPO_URL: https://github.com/coolsnowwolf/lede
+  ##mod##REPO_URL: https://github.com/coolsnowwolf/lede
+  REPO_URL: https://github.com/sdf8057/ipq6000.git
   REPO_BRANCH: master
   FEEDS_CONF: feeds.conf.default
   CONFIG_FILE: .config
