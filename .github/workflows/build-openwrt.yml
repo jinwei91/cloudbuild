@@ -16,7 +16,6 @@ on:
     inputs:
       ssh:
         description: 'SSH connection to Actions'
-        ##mod##required: false
         required: true
         default: 'false'
 
