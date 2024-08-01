@@ -14,16 +14,16 @@
 #sed -i 's/192.168.1.1/192.168.50.1/g' package/base-files/files/bin/config_generate
 
 # Update theme argonv3
-rm -rf feeds/luci/themes/luci-theme-argonv3
-git clone https://github.com/jerrykuku/luci-theme-argon feeds/luci/themes/luci-theme-argonv3
+#rm -rf feeds/luci/themes/luci-theme-argonv3
+#git clone https://github.com/jerrykuku/luci-theme-argon feeds/luci/themes/luci-theme-argonv3
 
 # Update theme argonv3
-rm -rf feeds/luci/themes/luci-theme-design
-git clone https://github.com/0x676e67/luci-theme-design feeds/luci/themes/luci-theme-design
+#rm -rf feeds/luci/themes/luci-theme-design
+#git clone https://github.com/0x676e67/luci-theme-design feeds/luci/themes/luci-theme-design
 
 # Change Default Design
-sed -i 's/luci-theme-bootstrap/luci-theme-design/g' feeds/luci/collections/luci/Makefile
-sed -i 's/Bootstrap/Design/g' feeds/luci/collections/luci/Makefile
+#sed -i 's/luci-theme-bootstrap/luci-theme-design/g' feeds/luci/collections/luci/Makefile
+#sed -i 's/Bootstrap/Design/g' feeds/luci/collections/luci/Makefile
 
 git clone https://github.com/sdf8057/luci
 rm -rf feeds/luci/applications/luci-app-cpufreq
