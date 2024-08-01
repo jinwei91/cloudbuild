@@ -21,14 +21,13 @@ on:
 
 env:
   #REPO_URL: https://github.com/jinwei91/ipq6000.git
-  REPO_URL: https://github.com/tangyl2000/ipq6000.git
-  REPO_BRANCH: main
-  #REPO_URL: https://github.com/sdf8057/ipq6000.git
-  #REPO_BRANCH: master
+  #REPO_BRANCH: main
+  REPO_URL: https://github.com/sdf8057/ipq6000.git
+  REPO_BRANCH: master
   FEEDS_CONF: feeds.conf.default
   CONFIG_FILE: ./config/ipq6000.config
-  DIY_P1_SH: ./scripts/diy-part3.sh
-  DIY_P2_SH: ./scripts/diy-part4.sh
+  DIY_P1_SH: ./scripts/diy-part1.sh
+  DIY_P2_SH: ./scripts/diy-part2.sh
   UPLOAD_BIN_DIR: false
   UPLOAD_FIRMWARE: true
   UPLOAD_RELEASE: true
@@ -114,7 +113,8 @@ jobs:
         cd openwrt/bin/targets/*/*
         rm -rf packages
         echo "FIRMWARE=$PWD" >> $GITHUB_ENV
-        echo "::set-output name=status::success"
+        #echo "::set-output name=status::success"
+        echo "{status}={success}" >> $GITHUB_OUTPUT
 
     - name: Upload firmware to release
       uses: softprops/action-gh-release@master
