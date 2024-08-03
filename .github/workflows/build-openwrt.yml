@@ -18,7 +18,7 @@ on:
 
 env:
   REPO_URL: https://github.com/jinwei91/ipq6000
-  REPO_BRANCH: main
+  REPO_BRANCH: master
   FEEDS_CONF: feeds.conf.default
   CONFIG_FILE: ./config/zn-m2.config
   DIY_P1_SH: ./scripts/diy-part1.sh
