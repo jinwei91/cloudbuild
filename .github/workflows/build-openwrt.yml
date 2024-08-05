@@ -15,6 +15,11 @@ name: OpenWrt Builder
 on:
   repository_dispatch:
   workflow_dispatch:
+    inputs:
+      ssh:
+        description: 'SSH Connection to Actions'
+        required: false
+        default: false
 
 env:
   REPO_URL: https://github.com/jinwei91/ipq6000
