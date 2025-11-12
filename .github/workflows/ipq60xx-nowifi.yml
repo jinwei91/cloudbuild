@@ -25,7 +25,7 @@ env:
   REPO_BRANCH: k6.12-nss
   CONFIG_FILE: configs/ipq60xx_nowifi.config
   DIY_SCRIPT: ./scripts/diy-part1.sh
-  CLASH_KERNEL: amd64
+  CLASH_KERNEL: aarch64
   UPLOAD_BIN_DIR: false
   FIRMWARE_RELEASE: true
   FIRMWARE_TAG: ipq60xx
@@ -36,8 +36,8 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-   - name: Check Server Performance
-      run: |
+      - name: Check Server Performance
+        run: |
         echo "--------------------------CPU Info--------------------------"
         echo "Physical CPU Number: $(cat /proc/cpuinfo | grep "physical id" | sort | uniq | wc -l)"
         echo -e "CPU Core Info: $(cat /proc/cpuinfo | grep name | cut -f2 -d: | uniq -c) \n"
