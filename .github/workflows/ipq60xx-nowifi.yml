@@ -60,7 +60,7 @@ jobs:
           sudo timedatectl set-timezone "$TZ"
 
       - name: Checkout
-        uses: actions/checkout@main
+        uses: actions/checkout@v5
         
       - name: Clone Source Code
           df -hT $GITHUB_WORKSPACE
