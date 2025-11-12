@@ -13,24 +13,25 @@
 name: OpenWrt Builder
 
 on:
-  repository_dispatch:
   workflow_dispatch:
     inputs:
       ssh:
-        description: 'SSH Connection to Actions'
+        description: "SSH Connection to Actions"
         required: false
         default: false
+    workflow_call:
+      # schedule:
+      #   - cron: 0 20 * * *
 
 env:
-  REPO_URL: https://github.com/jinwei91/ipq6000
-  REPO_BRANCH: develop
-  FEEDS_CONF: feeds.conf.default
-  CONFIG_FILE: ./config/zn-m2.config
-  DIY_P1_SH: ./scripts/diy-part1.sh
-  DIY_P2_SH: ./scripts/diy-part2.sh
+  REPO_URL: https://github.com/LiBwrt/openwrt-6.x.git
+  REPO_BRANCH: k6.12-nss
+  CONFIG_FILE: configs/ipq60xx_nowifi.config
+  DIY_SCRIPT: ./scripts/diy-part1.sh
+  CLASH_KERNEL: amd64
   UPLOAD_BIN_DIR: false
-  UPLOAD_FIRMWARE: true
-  UPLOAD_RELEASE: false
+  FIRMWARE_RELEASE: true
+  FIRMWARE_TAG: ipq60xx
   TZ: Asia/Shanghai
 
 jobs:
