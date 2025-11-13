@@ -72,7 +72,7 @@ jobs:
         git clone --depth 1 -b $REPO_BRANCH $REPO_URL openwrt
         cd openwrt
         echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
-        #VERSION_INFO=$(git show -s --date=short --format="作者: %an<br/>时间: %cd<br/>内容: %s<br/>hash: %H")
+        VERSION_INFO=$(git show -s --date=short --format="作者: %an<br/>时间: %cd<br/>内容: %s<br/>hash: %H")
         echo "VERSION_INFO=$VERSION_INFO" >> $GITHUB_ENV
         VERSION_KERNEL=$(grep -oP 'LINUX_KERNEL_HASH-\K[0-9]+\.[0-9]+\.[0-9]+' target/linux/generic/kernel-6.12)
         echo "VERSION_KERNEL=$VERSION_KERNEL" >> $GITHUB_ENV
@@ -129,6 +129,18 @@ jobs:
         cd $OPENWRT_PATH
         $GITHUB_WORKSPACE/$DIY_SCRIPT
 
+    #- name: Custom Settings
+    #  run: |
+    #    if [[ "${WRT_CONFIG,,}" == *"test"* ]]; then
+    #      cat $GITHUB_WORKSPACE/Config/$WRT_CONFIG.txt >> .config
+    #    else
+    #      cat $GITHUB_WORKSPACE/Config/$WRT_CONFIG.txt $GITHUB_WORKSPACE/Config/GENERAL.txt >> .config
+    #    fi
+    #
+    #    $GITHUB_WORKSPACE/Scripts/Settings.sh
+    #
+    #    make defconfig -j$(nproc) && make clean -j$(nproc)
+
     - name: Download Packages
       run: |
         cd $OPENWRT_PATH
@@ -180,13 +192,13 @@ jobs:
       if: steps.compile.outputs.status == 'success' && env.FIRMWARE_RELEASE == 'true'
       uses: ncipollo/release-action@main
       with:
-        name: ${{ env.DATE }} for ${{ env.FIRMWARE_TAG }}
+        name: ${{ env.FIRMWARE_TAG }}
         allowUpdates: true
         tag: ${{ env.FIRMWARE_TAG }}
         token: ${{ secrets.GITHUB_TOKEN }}
         artifacts: ${{ env.FIRMWARE_PATH }}/*
         body: |
-          **This is OpenWrt Firmware for ${{ env.FIRMWARE_TAG }}**
+          This is OpenWrt Firmware for ${{ env.FIRMWARE_TAG }}
           - Source Code: ${{ env.REPO_URL }}
           - Branch: ${{ env.REPO_BRANCH }}
           - Default Login Address：192.168.50.1
