@@ -27,12 +27,12 @@ env:
   REPO_URL: https://github.com/LiBwrt/openwrt-6.x.git
   REPO_BRANCH: k6.12-nss
   CONFIG_FILE: configs/ipq60xx_nowifi.config
-  GENERAL_CONFIG_FILE: configs/General.config
   DIY_SCRIPT: scripts/packages.sh
   CLASH_KERNEL: aarch64
+  CACHE_TOOLCHAIN: true
   UPLOAD_BIN_DIR: false
   FIRMWARE_RELEASE: true
-  FIRMWARE_TAG: ipq60xx
+  FIRMWARE_TAG: ipq60xx-6.12-nss-nowifi
   TZ: Asia/Shanghai
 
 jobs:
@@ -67,19 +67,17 @@ jobs:
     - name: Clone Source Code
       run: |
         df -hT $GITHUB_WORKSPACE
-        sudo mkdir -p /mnt/openwrt
-        sudo chown -R $(id -u):$(id -g) /mnt/openwrt
-        git clone --depth 1 -b $REPO_BRANCH --single-branch $REPO_URL /mnt/openwrt
-        cd /mnt/openwrt
+        git clone --depth 1 -b $REPO_BRANCH $REPO_URL openwrt
+        cd openwrt
         echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
-        VERSION_INFO=$(git show -s --date=short --format="作者: %an<br/>时间: %cd<br/>内容: %s<br/>hash: %H")
+        #VERSION_INFO=$(git show -s --date=short --format="作者: %an<br/>时间: %cd<br/>内容: %s<br/>hash: %H")
         echo "VERSION_INFO=$VERSION_INFO" >> $GITHUB_ENV
         VERSION_KERNEL=$(grep -oP 'LINUX_KERNEL_HASH-\K[0-9]+\.[0-9]+\.[0-9]+' target/linux/generic/kernel-6.12)
         echo "VERSION_KERNEL=$VERSION_KERNEL" >> $GITHUB_ENV
     
     - name: SSH connection to Actions
       uses: P3TERX/ssh2actions@main
-      if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh != 'false') || contains(github.event.action, 'ssh')
+      if: github.event.inputs.ssh == 'true' || contains(github.event.action, 'ssh')
       env:
         TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
         TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
