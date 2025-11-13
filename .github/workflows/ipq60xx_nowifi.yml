@@ -121,13 +121,14 @@ jobs:
   
     - name: Load Custom Configuration
       run: |
+        [ -e $CONFIG_FILE ] && cat $CONFIG_FILE $OPENWRT_PATH/.config
+        [ -e $GENERAL_CONFIG_FILE ] && cat $GENERAL_CONFIG_FILE >> $OPENWRT_PATH/.config
         chmod +x $DIY_SCRIPT
         cd $OPENWRT_PATH
         $GITHUB_WORKSPACE/$DIY_SCRIPT
 
     - name: Download Packages
       run: |
-        cat $CONFIG_FILE $GENERAL_CONFIG_FILE > $OPENWRT_PATH/.config
         cd $OPENWRT_PATH
         make defconfig
         make download -j$(nproc)
@@ -157,8 +158,10 @@ jobs:
       if: steps.compile.outputs.status == 'success'
       run: |
         cd $OPENWRT_PATH/bin/targets/*/*
-        cp $OPENWRT_PATH/.config ipq60xx.config
-        mv config.buildinfo ipq60xx.config.buildinfo
+        cat sha256sums
+        echo "VERSION_KERNEL=$(find -type f -name "*.manifest" -exec grep -oP '^kernel - \K.*?(?=~|-\d+-)' {} \;)" >> $GITHUB_ENV
+        cp $OPENWRT_PATH/.config ipq60xx_nowifi.config
+        mv config.buildinfo ipq60xx_nowifi.buildinfo
         mv -f $OPENWRT_PATH/bin/packages/*/*/*.apk packages
         tar -zcf ipq60xx.Packages.tar.gz packages
         rm -rf packages feeds.buildinfo version.buildinfo sha256sums profiles.json
@@ -182,25 +185,18 @@ jobs:
         artifacts: ${{ env.FIRMWARE_PATH }}/*
         body: |
           **This is OpenWrt Firmware for ${{ env.FIRMWARE_TAG }}**
-          ### 📒 固件信息
-          - 这是开启全功能NSS的6.12内核固件，默认主题为Argon；该固件在ImmortalWrt的基础上，添加了额外的软件包cpufreq、ddns、ttyd、upnp、wolplus、samba4、vlmcsd、aria2、autoreboot、uhttpd、wifischedule、frps、frpc、diskman、hd-idle、banip、acme、arpbind、usb-printer、homeproxy、oaf、sqm、wireguard、watchcat、wechatpush、3cat，并添加了若干工具，具体详见IPQ60XX.config。
-          - 💻 这是 ${{ env.FIRMWARE_TAG }} 平台使用的 OpenWrt 固件
-          - ⚽ 固件源码: ${{ env.REPO_URL }}
-          - 💝 源码分支: ${{ env.REPO_BRANCH }}
-          - 🌐 默认地址: **192.168.2.1**
-          - 🔑 默认密码: none
-          ### 🧊 固件版本
-          - 固件内核版本：**${{ env.VERSION_KERNEL }}**
-          - 固件编译前最后一次➦[主源码](${{ env.REPO_URL }})更新记录
+          - Source Code: ${{ env.REPO_URL }}
+          - Branch: ${{ env.REPO_BRANCH }}
+          - Default Login Address：192.168.50.1
+          - Default Password: password
+          - Firmware Kernel：${{ env.VERSION_KERNEL }}
           - ${{ env.VERSION_INFO }}
 
     - name: Delete Old Cache
       run: |
-        # 获取缓存列表并删除
         gh cache list --key ${{ env.SOURCE_REPO }}-${{ env.REPO_BRANCH }}-${{ env.DEVICE_TARGET }}-${{ env.DEVICE_SUBTARGET }}- --json key --jq '.[] | .key' | while read -r key; do
-          gh cache delete "$key"
+        gh cache delete "$key"
         done
-        # 输出缓存状态
         echo "========cache status========"
         echo "ccache: $(du -sh $OPENWRT_PATH/.ccache | cut -f 1)"
         echo "staging: $(du -sh $OPENWRT_PATH/staging_dir | cut -f 1)"
