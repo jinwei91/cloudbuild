@@ -202,7 +202,6 @@ jobs:
           - Source Code: ${{ env.REPO_URL }}
           - Branch: ${{ env.REPO_BRANCH }}
           - Default Login Address：192.168.50.1
-          - Default Password: password
           - Firmware Kernel：${{ env.VERSION_KERNEL }}
           - ${{ env.VERSION_INFO }}
 
