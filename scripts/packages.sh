@@ -1,46 +1,25 @@
+#!/bin/bash
+#
+# https://github.com/P3TERX/Actions-OpenWrt
+# File name: diy-part1.sh
+# Description: OpenWrt DIY script part 1 (Before Update feeds)
+#
+# Copyright (c) 2019-2024 P3TERX <https://p3terx.com>
+#
+# This is free software, licensed under the MIT License.
+# See /LICENSE for more information.
+#
+
+## Update Default IP & Firmware Name & Compile Info.
 sed -i 's/192.168.1.1/192.168.50.1/g' package/base-files/files/bin/config_generate
 sed -i "s/hostname='.*'/hostname='OpenWrt'/g" package/base-files/files/bin/config_generate
-
-# 修改默认IP & 固件名称 & 编译署名
-#sed -i 's/192.168.1.1/192.168.2.1/g' package/base-files/files/bin/config_generate
-#sed -i "s/hostname='.*'/hostname='Roc'/g" package/base-files/files/bin/config_generate
 #sed -i "s/(\(luciversion || ''\))/(\1) + (' \/ Built by Roc')/g" feeds/luci/modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/10_system.js
 
-# 调整在Argon主题下，概览页面显示/隐藏按钮的样式
-#sed -i '/^\.td\.cbi-section-actions {$/,/^}$/ {
-#    /^}$/a\
-#.cbi-section.fade-in .cbi-title {\
-#  position: relative;\
-#  min-height: 2.765rem;\
-#  display: flex;\
-#  align-items: center\
-#}\
-#.cbi-section.fade-in .cbi-title>div:last-child {\
-#  position: absolute;\
-#  right: 1rem\
-#}\
-#.cbi-section.fade-in .cbi-title>div:last-child span {\
-#  display: inline-block;\
-#  position: relative;\
-#  font-size: 0\
-#}\
-#.cbi-section.fade-in .cbi-title>div:last-child span::after {\
-#  content: "\\e90f";\
-#  font-family: '\''argon'\'' !important;\
-#  font-size: 1.1rem;\
-#  display: inline-block;\
-#  transition: transform 0.3s ease;\
-#  -webkit-font-smoothing: antialiased;\
-#  line-height: 1\
-#}\
-#.cbi-section.fade-in .cbi-title>div:last-child span[data-style='\''inactive'\'']::after {\
-#  transform: rotate(90deg);\
-#}
-#}' feeds/luci/themes/luci-theme-argon/htdocs/luci-static/argon/css/cascade.css
-
-#sed -i -e '/btn\.setAttribute(\x27class\x27, include\.hide ? \x27label notice\x27 : \x27label\x27);/d' \
-#      -e "/\x27class\x27: includes\[i\]\.hide ? \x27label notice\x27 : \x27label\x27,/d" \
-#         feeds/luci/modules/luci-mod-status/htdocs/luci-static/resources/view/status/index.js
+## Hello World
+#sed -i "/helloworld/d" "feeds.conf.default"
+#echo "src-git helloworld https://github.com/fw876/helloworld.git" >> "feeds.conf.default"
+#./scripts/feeds update helloworld
+#./scripts/feeds install -a -f -p helloworld
 
 # 调整NSS驱动q6_region内存区域预留大小（ipq6018.dtsi默认预留85MB，ipq6018-512m.dtsi默认预留55MB，带WiFi必须至少预留54MB，以下分别是改成预留16MB、32MB、64MB和96MB）
 # sed -i 's/reg = <0x0 0x4ab00000 0x0 0x[0-9a-f]\+>/reg = <0x0 0x4ab00000 0x0 0x01000000>/' target/linux/qualcommax/files/arch/arm64/boot/dts/qcom/ipq6018-512m.dtsi
@@ -90,33 +69,6 @@ sed -i "s/hostname='.*'/hostname='OpenWrt'/g" package/base-files/files/bin/confi
 #./scripts/feeds update -a
 #./scripts/feeds install -a
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#!/bin/bash
-#
-# https://github.com/P3TERX/Actions-OpenWrt
-# File name: diy-part1.sh
-# Description: OpenWrt DIY script part 1 (Before Update feeds)
-#
-# Copyright (c) 2019-2024 P3TERX <https://p3terx.com>
-#
-# This is free software, licensed under the MIT License.
-# See /LICENSE for more information.
-#
-
 # Uncomment a feed source
 #sed -i 's/^#\(.*helloworld\)/\1/' feeds.conf.default
 
@@ -124,7 +76,7 @@ sed -i "s/hostname='.*'/hostname='OpenWrt'/g" package/base-files/files/bin/confi
 #echo 'src-git helloworld https://github.com/fw876/helloworld' >>feeds.conf.default
 #echo 'src-git passwall https://github.com/xiaorouji/openwrt-passwall' >>feeds.conf.default
 
-#!/bin/bash
+####!/bin/bash
 
 #安装和更新软件包
 UPDATE_PACKAGE() {
@@ -178,7 +130,8 @@ UPDATE_PACKAGE() {
 #UPDATE_PACKAGE "homeproxy" "VIKINGYFY/homeproxy" "main"
 #UPDATE_PACKAGE "momo" "nikkinikki-org/OpenWrt-momo" "main"
 #UPDATE_PACKAGE "nikki" "nikkinikki-org/OpenWrt-nikki" "main"
-UPDATE_PACKAGE "openclash" "vernesong/OpenClash" "dev" "pkg"
+UPDATE_PACKAGE "helloworld" "fw876/helloworld" "master"
+UPDATE_PACKAGE "openclash" "vernesong/OpenClash" "master" "pkg"
 UPDATE_PACKAGE "passwall" "xiaorouji/openwrt-passwall" "main" "pkg"
 #UPDATE_PACKAGE "passwall2" "xiaorouji/openwrt-passwall2" "main" "pkg"
 
