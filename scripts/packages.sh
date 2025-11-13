@@ -25,6 +25,13 @@ sed -i "s/DISTRIB_DESCRIPTION='*.*'/DISTRIB_DESCRIPTION='OpenWrt IPQ60xx (build 
 ## Theme
 git clone https://github.com/SAENE/luci-theme-design.git package/luci-theme-design
 
+#git clone https://github.com/0x676e67/luci-theme-design.git package/luci-theme-design
+#make menuconfig # choose LUCI->Theme->Luci-theme-design
+#make V=s
+#git clone https://github.com/thinktip/luci-theme-neobird.git package/luci-theme-neobird 
+#make menuconfig #choose LUCI->Theme->Luci-theme-neobird  
+#make -j1 V=s
+
 # 调整NSS驱动q6_region内存区域预留大小（ipq6018.dtsi默认预留85MB，ipq6018-512m.dtsi默认预留55MB，带WiFi必须至少预留54MB，以下分别是改成预留16MB、32MB、64MB和96MB）
 # sed -i 's/reg = <0x0 0x4ab00000 0x0 0x[0-9a-f]\+>/reg = <0x0 0x4ab00000 0x0 0x01000000>/' target/linux/qualcommax/files/arch/arm64/boot/dts/qcom/ipq6018-512m.dtsi
 # sed -i 's/reg = <0x0 0x4ab00000 0x0 0x[0-9a-f]\+>/reg = <0x0 0x4ab00000 0x0 0x02000000>/' target/linux/qualcommax/files/arch/arm64/boot/dts/qcom/ipq6018-512m.dtsi
