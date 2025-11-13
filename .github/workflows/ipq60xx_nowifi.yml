@@ -60,6 +60,8 @@ jobs:
         sudo -E apt -yqq clean
         sudo -E systemctl daemon-reload
         sudo timedatectl set-timezone "$TZ"
+        export BUILD_DATE=$(date +"%Y-%m-%d %H:%M:%S")
+        echo "BUILD_DATE=$BUILD_DATE" >> $GITHUB_ENV
 
     - name: Checkout
       uses: actions/checkout@main
