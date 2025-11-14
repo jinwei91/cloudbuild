@@ -11,10 +11,10 @@
 #
 
 ## Update Default IP & Firmware Name & Compile Info.
-sed -i 's/192.168.1.1/192.168.50.1/g' package/base-files/files/bin/config_generate
-sed -i "s/hostname='.*'/hostname='OpenWrt'/g" package/base-files/files/bin/config_generate
+#sed -i 's/192.168.1.1/192.168.50.1/g' package/base-files/files/bin/config_generate
+#sed -i "s/hostname='.*'/hostname='OpenWrt'/g" package/base-files/files/bin/config_generate
 #sed -i "s/(\(luciversion || ''\))/(\1) + (' \/ Built by Roc')/g" feeds/luci/modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/10_system.js
-sed -i "s/DISTRIB_DESCRIPTION='*.*'/DISTRIB_DESCRIPTION='OpenWrt IPQ60xx (build time: $(date +%Y%m%d))'/g"  package/base-files/files/etc/openwrt_release
+#sed -i "s/DISTRIB_DESCRIPTION='*.*'/DISTRIB_DESCRIPTION='OpenWrt IPQ60xx (build time: $(date +%Y%m%d))'/g"  package/base-files/files/etc/openwrt_release
 
 ## Hello World
 #sed -i "/helloworld/d" "feeds.conf.default"
@@ -23,7 +23,7 @@ sed -i "s/DISTRIB_DESCRIPTION='*.*'/DISTRIB_DESCRIPTION='OpenWrt IPQ60xx (build 
 #./scripts/feeds install -a -f -p helloworld
 
 ## Theme
-git clone https://github.com/SAENE/luci-theme-design.git package/luci-theme-design
+#git clone https://github.com/SAENE/luci-theme-design.git package/luci-theme-design
 
 #git clone https://github.com/0x676e67/luci-theme-design.git package/luci-theme-design
 #make menuconfig # choose LUCI->Theme->Luci-theme-design
@@ -141,9 +141,9 @@ UPDATE_PACKAGE() {
 #UPDATE_PACKAGE "homeproxy" "VIKINGYFY/homeproxy" "main"
 #UPDATE_PACKAGE "momo" "nikkinikki-org/OpenWrt-momo" "main"
 #UPDATE_PACKAGE "nikki" "nikkinikki-org/OpenWrt-nikki" "main"
-UPDATE_PACKAGE "helloworld" "fw876/helloworld" "master"
-UPDATE_PACKAGE "openclash" "vernesong/OpenClash" "master" "pkg"
-UPDATE_PACKAGE "passwall" "xiaorouji/openwrt-passwall" "main" "pkg"
+#UPDATE_PACKAGE "helloworld" "fw876/helloworld" "master"
+#UPDATE_PACKAGE "openclash" "vernesong/OpenClash" "master" "pkg"
+#UPDATE_PACKAGE "passwall" "xiaorouji/openwrt-passwall" "main" "pkg"
 #UPDATE_PACKAGE "passwall2" "xiaorouji/openwrt-passwall2" "main" "pkg"
 
 #UPDATE_PACKAGE "luci-app-tailscale" "asvow/luci-app-tailscale" "main"
