@@ -78,7 +78,7 @@ jobs:
 
     - name: Load Custom Feeds
       run: |
-        [ -e $FEEDS_CONF ] && mv $FEEDS_CONF openwrt/feeds.conf.default
+        [ -e $FEEDS_CONF ] && cat $FEEDS_CONF >> openwrt/feeds.conf.default
         chmod +x $SCRIPT_PACKAGES
         cd $OPENWRT_PATH
         $GITHUB_WORKSPACE/$DIY_SCRIPT
