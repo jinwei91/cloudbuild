@@ -10,7 +10,7 @@
 # See /LICENSE for more information.
 #
 
-name: OpenWrt Build
+name: OpenWrt Builder
 
 on:
   workflow_dispatch:
@@ -26,10 +26,13 @@ on:
 env:
   REPO_URL: https://github.com/LiBwrt/openwrt-6.x.git
   REPO_BRANCH: k6.12-nss
+  FEEDS_CONF: feeds/ipq60xx_nowifi.feeds.conf
   CONFIG_FILE: configs/ipq60xx_nowifi.config
-  DIY_SCRIPT: scripts/packages.sh
+  SCRIPT_PACKAGES: scripts/packages.sh
+  SCRIPT_SETTINGS: scripts/packages.sh
   UPLOAD_BIN_DIR: false
-  FIRMWARE_RELEASE: true
+  UPLOAD_FIRMWARE: true
+  UPLOAD_RELEASE: true
   FIRMWARE_TAG: ipq60xx-nowifi-6.12-nss
   TZ: Asia/Shanghai
 
@@ -40,10 +43,10 @@ jobs:
     steps:
     - name: Check Server Performance
       run: |
-        echo "Physical CPU Number: $(cat /proc/cpuinfo | grep 'physical id' | sort | uniq | wc -l)\n"
-        echo -e "CPU Model: $(cat /proc/cpuinfo | grep name | cut -f2 -d: | uniq -c)\n"
-        echo "RAM Info:\n"
-        echo -e "$(sudo lshw -short -C memory | grep GiB)\n"
+        echo "Physical CPU Number: $(cat /proc/cpuinfo | grep 'physical id' | sort | uniq | wc -l)"
+        echo -e "CPU Model: $(cat /proc/cpuinfo | grep name | cut -f2 -d: | uniq -c)"
+        echo "RAM Info:"
+        echo -e "$(sudo lshw -short -C memory | grep GiB)"
         echo "Disk Info: $(ls /dev/sd* | grep -v [1-9] | wc -l)" && df -hT
 
     - name: Initialization Environment
@@ -73,11 +76,18 @@ jobs:
         VERSION_KERNEL=$(grep -oP 'LINUX_KERNEL_HASH-\K[0-9]+\.[0-9]+\.[0-9]+' target/linux/generic/kernel-6.12)
         echo "VERSION_KERNEL=$VERSION_KERNEL" >> $GITHUB_ENV
 
-    - name: Generate Variables
+    - name: Load Custom Feeds
       run: |
-        #cp $CONFIG_FILE $OPENWRT_PATH/.config
+        [ -e $FEEDS_CONF ] && mv $FEEDS_CONF openwrt/feeds.conf.default
+        chmod +x $SCRIPT_PACKAGES
         cd $OPENWRT_PATH
-        make defconfig > /dev/null 2>&1
+        $GITHUB_WORKSPACE/$DIY_SCRIPT
+
+    #- name: Generate Variables
+      #run: |
+        #cp $CONFIG_FILE $OPENWRT_PATH/.config
+        #cd $OPENWRT_PATH
+        #make defconfig > /dev/null 2>&1
         #SOURCE_REPO="$(echo $REPO_URL | awk -F '/' '{print $(NF)}')"
         #echo "SOURCE_REPO=$SOURCE_REPO" >> $GITHUB_ENV
         #DEVICE_TARGET=$(cat .config | grep CONFIG_TARGET_BOARD | awk -F '"' '{print $2}')
@@ -119,11 +129,11 @@ jobs:
   
     - name: Load Custom Configuration
       run: |
+        [ -e files ] && mv files $OPENWRT_PATH/files
         [ -e $CONFIG_FILE ] && cat $CONFIG_FILE $OPENWRT_PATH/.config
-        [ -e $GENERAL_CONFIG_FILE ] && cat $GENERAL_CONFIG_FILE >> $OPENWRT_PATH/.config
-        chmod +x $DIY_SCRIPT
+        chmod +x $SCRIPT_SETTINGS
         cd $OPENWRT_PATH
-        $GITHUB_WORKSPACE/$DIY_SCRIPT
+        $GITHUB_WORKSPACE/$SCRIPT_SETTINGS
 
     #- name: Custom Settings
     #  run: |
@@ -142,6 +152,8 @@ jobs:
         cd $OPENWRT_PATH
         make defconfig
         make download -j$(nproc)
+        find dl -size -1024c -exec ls -l {} \;
+        find dl -size -1024c -exec rm -f {} \;
 
     - name: Compile Firmware
       id: compile
@@ -150,8 +162,10 @@ jobs:
         echo -e "$(nproc) thread compile"
         make -j$(nproc) || make -j1 || make -j1 V=s
         echo "status=success" >> $GITHUB_OUTPUT
+        grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
+        [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
         echo "DATE=$(date +"%Y-%m-%d %H:%M:%S")" >> $GITHUB_ENV
-        echo "FILE_DATE=$(date +"%Y.%m.%d")" >> $GITHUB_ENV
+        echo "FILE_DATE=$(date +"%Y-%m-%d")" >> $GITHUB_ENV
 
     - name: Check Space Usage
       if: (!cancelled())
@@ -161,31 +175,29 @@ jobs:
       if: steps.compile.outputs.status == 'success' && env.UPLOAD_BIN_DIR == 'true'
       uses: actions/upload-artifact@main
       with:
-        name: ${{ env.SOURCE_REPO }}-bin-${{ env.DEVICE_TARGET }}-${{ env.DEVICE_SUBTARGET }}-${{ env.FILE_DATE }}
+        name: OpenWrt_bin${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
         path: ${{ env.OPENWRT_PATH }}/bin
 
     - name: Organize Files
-      if: steps.compile.outputs.status == 'success'
+      id: organize
+      if: steps.compile.outputs.status == 'success' && env.UPLOAD_FIRMWARE == 'true' && !cancelled()
       run: |
         cd $OPENWRT_PATH/bin/targets/*/*
-        cat sha256sums
         echo "VERSION_KERNEL=$(find -type f -name "*.manifest" -exec grep -oP '^kernel - \K.*?(?=~|-\d+-)' {} \;)" >> $GITHUB_ENV
         cp $OPENWRT_PATH/.config ipq60xx_nowifi.config
         mv config.buildinfo ipq60xx_nowifi.buildinfo
-        mv -f $OPENWRT_PATH/bin/packages/*/*/*.apk packages
-        tar -zcf ipq60xx.Packages.tar.gz packages
-        rm -rf packages feeds.buildinfo version.buildinfo sha256sums profiles.json
+        rm -rf packages
         echo "FIRMWARE_PATH=$PWD" >> $GITHUB_ENV
 
-    - name: Upload Firmware To Artifact
-      if: steps.compile.outputs.status == 'success' && env.FIRMWARE_RELEASE != 'true'
+    - name: Upload Firmware Directory
+      if: steps.compile.outputs.status == 'success' && !cancelled() && env.UPLOAD_FIRMWARE == 'true'
       uses: actions/upload-artifact@main
       with:
-        name: ${{ env.SOURCE_REPO }}-firmware-${{ env.DEVICE_TARGET }}-${{ env.DEVICE_SUBTARGET }}-${{ env.FILE_DATE }}
+        name: OpenWrt_firmware${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
         path: ${{ env.FIRMWARE_PATH }}
 
     - name: Upload Firmware To Release
-      if: steps.compile.outputs.status == 'success' && env.FIRMWARE_RELEASE == 'true'
+      if: steps.compile.outputs.status == 'success' && env.UPLOAD_FIRMWARE == 'true'
       uses: ncipollo/release-action@main
       with:
         name: ${{ env.FIRMWARE_TAG }}
@@ -211,3 +223,18 @@ jobs:
         echo "staging: $(du -sh $OPENWRT_PATH/staging_dir | cut -f 1)"
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Delete Workflow Runs
+      uses: Mattraks/delete-workflow-runs@main
+      with:
+        retain_days: 0
+        keep_minimum_runs: 2
+
+    - name: Remove Old Releases
+      uses: dev-drprasad/delete-older-releases@master
+      if: env.UPLOAD_RELEASE == 'true' && !cancelled()
+      with:
+        keep_latest: 2
+        delete_tags: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
