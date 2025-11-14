@@ -26,7 +26,7 @@ on:
 env:
   REPO_URL: https://github.com/LiBwrt/openwrt-6.x.git
   REPO_BRANCH: k6.12-nss
-  FEEDS_CONF: feeds/ipq60xx_nowifi.feeds
+  FEEDS_CONF: configs/ipq60xx_nowifi.feeds
   CONFIG_FILE: configs/ipq60xx_nowifi.config
   SCRIPT_PACKAGES: scripts/packages.sh
   SCRIPT_SETTINGS: scripts/settings.sh
@@ -137,8 +137,8 @@ jobs:
     - name: Load Custom Configuration
       run: |
         [ -e files ] && mv files $OPENWRT_PATH/files
-        [ -e $CONFIG_FILE ] && mv $CONFIG_FILE $OPENWRT_PATH/.config
-        chmod +x $SCRIPT_SETTINGS
+        [ -e $GITHUB_WORKSPACE/$CONFIG_FILE ] && mv $GITHUB_WORKSPACE/$CONFIG_FILE $OPENWRT_PATH/.config
+        chmod +x $GITHUB_WORKSPACE/$SCRIPT_SETTINGS
         cd $OPENWRT_PATH
         $GITHUB_WORKSPACE/$SCRIPT_SETTINGS
 
