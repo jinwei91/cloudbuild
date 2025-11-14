@@ -26,7 +26,7 @@ on:
 env:
   REPO_URL: https://github.com/LiBwrt/openwrt-6.x.git
   REPO_BRANCH: k6.12-nss
-  FEEDS_CONF: feeds/ipq60xx_nowifi.feeds.conf
+  FEEDS_CONF: feeds/ipq60xx_nowifi.feeds
   CONFIG_FILE: configs/ipq60xx_nowifi.config
   SCRIPT_PACKAGES: scripts/packages.sh
   SCRIPT_SETTINGS: scripts/settings.sh
