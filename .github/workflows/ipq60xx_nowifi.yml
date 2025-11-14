@@ -29,7 +29,7 @@ env:
   FEEDS_CONF: feeds/ipq60xx_nowifi.feeds.conf
   CONFIG_FILE: configs/ipq60xx_nowifi.config
   SCRIPT_PACKAGES: scripts/packages.sh
-  SCRIPT_SETTINGS: scripts/packages.sh
+  SCRIPT_SETTINGS: scripts/settings.sh
   UPLOAD_BIN_DIR: false
   UPLOAD_FIRMWARE: true
   UPLOAD_RELEASE: true
