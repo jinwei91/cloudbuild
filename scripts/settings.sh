@@ -18,3 +18,6 @@ sed -i 's/luci-theme-bootstrap/luci-theme-argon/g' feeds/luci/collections/luci/M
 
 # Modify Hostname
 sed -i 's/LiBwrt/OpenWrt/g' package/base-files/files/bin/config_generate
+
+# Modify Distribution
+#sed -i "s/DISTRIB_DESCRIPTION='*.*'/DISTRIB_DESCRIPTION='OpenWrt IPQ60xx (build time: $(date +%Y%m%d))'/g"  package/base-files/files/etc/openwrt_release
