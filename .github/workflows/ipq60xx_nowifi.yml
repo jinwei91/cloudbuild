@@ -77,12 +77,12 @@ jobs:
         VERSION_KERNEL=$(grep -oP 'LINUX_KERNEL_HASH-\K[0-9]+\.[0-9]+\.[0-9]+' target/linux/generic/kernel-6.12)
         echo "VERSION_KERNEL=$VERSION_KERNEL" >> $GITHUB_ENV
 
-    - name: Load Custom Feeds
-      run: |
-        #[ -e $FEEDS_CONF ] && cat $GITHUB_WORKSPACE/$FEEDS_FILE >> $OPENWRT_PATH/feeds.conf.default
-        chmod +x $SCRIPT_PACKAGES
-        cd $OPENWRT_PATH
-        $GITHUB_WORKSPACE/$DIY_SCRIPT
+    #- name: Load Custom Feeds
+    #  run: |
+    #    [ -e $FEEDS_CONF ] && cat $GITHUB_WORKSPACE/$FEEDS_FILE >> $OPENWRT_PATH/feeds.conf.default
+    #    chmod +x $SCRIPT_PACKAGES
+    #    cd $OPENWRT_PATH
+    #    $GITHUB_WORKSPACE/$DIY_SCRIPT
 
     #- name: Generate Variables
       #run: |
