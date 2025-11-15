@@ -10,7 +10,7 @@
 # See /LICENSE for more information.
 #
 
-name: OpenWrt Builder
+name: OpenWrt Build
 
 on:
   workflow_dispatch:
@@ -26,11 +26,11 @@ on:
 env:
   REPO_URL: https://github.com/LiBwrt/openwrt-6.x.git
   REPO_BRANCH: k6.12-nss
-  FEEDS_CONF: configs/ipq60xx_nowifi.feeds
+  FEEDS_FILE: configs/ipq60xx_nowifi.feeds
   CONFIG_FILE: configs/ipq60xx_nowifi.config
   SCRIPT_PACKAGES: scripts/packages.sh
   SCRIPT_SETTINGS: scripts/settings.sh
-  UPLOAD_BIN_DIR: false
+  UPLOAD_BIN_DIR: true
   UPLOAD_FIRMWARE: true
   UPLOAD_RELEASE: true
   FIRMWARE_TAG: ipq60xx-nowifi-6.12-nss
@@ -41,6 +41,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Checkout
+      uses: actions/checkout@main
+      
     - name: Check Server Performance
       run: |
         echo "Physical CPU Number: $(cat /proc/cpuinfo | grep 'physical id' | sort | uniq | wc -l)"
@@ -48,7 +51,7 @@ jobs:
         echo "RAM Info:"
         echo -e "$(sudo lshw -short -C memory | grep GiB)"
         echo "Disk Info: $(ls /dev/sd* | grep -v [1-9] | wc -l)" && df -hT
-
+      
     - name: Initialization Environment
       env:
         DEBIAN_FRONTEND: noninteractive
@@ -58,27 +61,12 @@ jobs:
         sudo -E apt -yqq autoremove --purge
         sudo -E apt -yqq autoclean
         sudo -E apt -yqq clean
-        sudo -E apt -yqq install dos2unix
-        sudo -E apt -yqq install libfuse-dev
-        #sudo -E apt -yqq install python3-distutils python3-netifaces
-        sudo -E apt -yqq install python3-setuptools python3-netifaces python3 python3-pip python3-ply python3-docutils python3-pyelftools
-        #sudo -E apt -yqq install pip
-        #sudo pip install setuptools
+        sudo -E apt -yqq install dos2unix libfuse-dev python3-setuptools
         sudo bash -c 'bash <(curl -sL https://build-scripts.immortalwrt.org/init_build_environment.sh)'
         sudo -E systemctl daemon-reload
         sudo timedatectl set-timezone "$TZ"
         export BUILD_DATE=$(date +"%Y-%m-%d %H:%M:%S")
         echo "BUILD_DATE=$BUILD_DATE" >> $GITHUB_ENV
-
-    - name: Combine Disks
-      uses: easimon/maximize-build-space@master
-      with:
-        swap-size-mb: 1024
-        temp-reserve-mb: 100
-        root-reserve-mb: 1024
-        
-    - name: Checkout
-      uses: actions/checkout@main
 
     - name: Clone Source Code
       run: |
@@ -89,12 +77,12 @@ jobs:
         VERSION_KERNEL=$(grep -oP 'LINUX_KERNEL_HASH-\K[0-9]+\.[0-9]+\.[0-9]+' target/linux/generic/kernel-6.12)
         echo "VERSION_KERNEL=$VERSION_KERNEL" >> $GITHUB_ENV
 
-    #- name: Load Custom Feeds
-    #  run: |
-    #    [ -e $FEEDS_CONF ] && cat $FEEDS_CONF >> $OPENWRT_PATH/feeds.conf.default
-    #    chmod +x $SCRIPT_PACKAGES
-    #    cd $OPENWRT_PATH
-    #    $GITHUB_WORKSPACE/$DIY_SCRIPT
+    - name: Load Custom Feeds
+      run: |
+        [ -e $FEEDS_CONF ] && cat $GITHUB_WORKSPACE/$FEEDS_FILE >> $OPENWRT_PATH/feeds.conf.default
+        chmod +x $SCRIPT_PACKAGES
+        cd $OPENWRT_PATH
+        $GITHUB_WORKSPACE/$DIY_SCRIPT
 
     #- name: Generate Variables
       #run: |
@@ -143,7 +131,7 @@ jobs:
     - name: Load Custom Configuration
       run: |
         [ -e files ] && mv files $OPENWRT_PATH/files
-        [ -e $GITHUB_WORKSPACE/$CONFIG_FILE ] && mv $GITHUB_WORKSPACE/$CONFIG_FILE $OPENWRT_PATH/.config
+        [ -e $GITHUB_WORKSPACE/$CONFIG_FILE ] && cat $GITHUB_WORKSPACE/$CONFIG_FILE > $OPENWRT_PATH/.config
         chmod +x $GITHUB_WORKSPACE/$SCRIPT_SETTINGS
         cd $OPENWRT_PATH
         $GITHUB_WORKSPACE/$SCRIPT_SETTINGS
@@ -177,18 +165,16 @@ jobs:
         echo "status=success" >> $GITHUB_OUTPUT
         grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
         [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
-        echo "DATE=$(date +"%Y-%m-%d %H:%M:%S")" >> $GITHUB_ENV
-        echo "FILE_DATE=$(date +"%Y-%m-%d")" >> $GITHUB_ENV
 
     - name: Check Space Usage
       if: (!cancelled())
       run: df -hT
 
     - name: Upload Bin Directory
-      if: steps.compile.outputs.status == 'success' && env.UPLOAD_BIN_DIR == 'true'
+      if: steps.compile.outputs.status == 'success' && env.UPLOAD_BIN_DIR == 'true' && !cancelled()
       uses: actions/upload-artifact@main
       with:
-        name: OpenWrt_bin${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
+        name: OpenWrt_bin${{ env.DEVICE_NAME }}${{ env.BUILD_DATE }}
         path: ${{ env.OPENWRT_PATH }}/bin
 
     - name: Organize Files
@@ -198,19 +184,19 @@ jobs:
         cd $OPENWRT_PATH/bin/targets/*/*
         echo "VERSION_KERNEL=$(find -type f -name "*.manifest" -exec grep -oP '^kernel - \K.*?(?=~|-\d+-)' {} \;)" >> $GITHUB_ENV
         cp $OPENWRT_PATH/.config ipq60xx_nowifi.config
-        mv config.buildinfo ipq60xx_nowifi.buildinfo
+        cp config.buildinfo ipq60xx_nowifi.buildinfo
         rm -rf packages
         echo "FIRMWARE_PATH=$PWD" >> $GITHUB_ENV
 
     - name: Upload Firmware Directory
-      if: steps.compile.outputs.status == 'success' && !cancelled() && env.UPLOAD_FIRMWARE == 'true'
+      if: steps.compile.outputs.status == 'success' && env.UPLOAD_FIRMWARE == 'true' && !cancelled() 
       uses: actions/upload-artifact@main
       with:
-        name: OpenWrt_firmware${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
+        name: OpenWrt_firmware${{ env.DEVICE_NAME }}${{ env.BUILD_DATE }}
         path: ${{ env.FIRMWARE_PATH }}
 
     - name: Upload Firmware To Release
-      if: steps.compile.outputs.status == 'success' && env.UPLOAD_FIRMWARE == 'true'
+      if: steps.compile.outputs.status == 'success' && env.UPLOAD_FIRMWARE == 'true' && !cancelled() 
       uses: ncipollo/release-action@main
       with:
         name: ${{ env.FIRMWARE_TAG }}
@@ -224,18 +210,7 @@ jobs:
           - Branch: ${{ env.REPO_BRANCH }}
           - Default Login Address：192.168.50.1
           - Firmware Kernel：${{ env.VERSION_KERNEL }}
-          - ${{ env.VERSION_INFO }}
-
-    - name: Delete Old Cache
-      run: |
-        gh cache list --key ${{ env.SOURCE_REPO }}-${{ env.REPO_BRANCH }}-${{ env.DEVICE_TARGET }}-${{ env.DEVICE_SUBTARGET }}- --json key --jq '.[] | .key' | while read -r key; do
-        gh cache delete "$key"
-        done
-        echo "========cache status========"
-        echo "ccache: $(du -sh $OPENWRT_PATH/.ccache | cut -f 1)"
-        echo "staging: $(du -sh $OPENWRT_PATH/staging_dir | cut -f 1)"
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          #- ${{ env.VERSION_INFO }}
     
     - name: Delete Workflow Runs
       uses: Mattraks/delete-workflow-runs@main
@@ -247,7 +222,18 @@ jobs:
       uses: dev-drprasad/delete-older-releases@master
       if: env.UPLOAD_RELEASE == 'true' && !cancelled()
       with:
-        keep_latest: 2
+        keep_latest: 3
         delete_tags: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Delete Old Cache
+      run: |
+        gh cache list --key ${{ env.SOURCE_REPO }}-${{ env.REPO_BRANCH }}-${{ env.DEVICE_TARGET }}-${{ env.DEVICE_SUBTARGET }}- --json key --jq '.[] | .key' | while read -r key; do
+        gh cache delete "$key"
+        done
+        echo "========cache status========"
+        echo "ccache: $(du -sh $OPENWRT_PATH/.ccache | cut -f 1)"
+        echo "staging: $(du -sh $OPENWRT_PATH/staging_dir | cut -f 1)"
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
