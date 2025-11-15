@@ -79,10 +79,6 @@ jobs:
 
     - name: Load Custom Feeds
       run: |
-        if [ -e $GITHUB_WORKSPACE/$FEEDS_FILE]; then
-          cat $GITHUB_WORKSPACE/$FEEDS_FILE >> $OPENWRT_PATH/feeds.conf.default
-        fi
-
         #[ -e $FEEDS_CONF ] && cat $GITHUB_WORKSPACE/$FEEDS_FILE >> $OPENWRT_PATH/feeds.conf.default
         chmod +x $SCRIPT_PACKAGES
         cd $OPENWRT_PATH
