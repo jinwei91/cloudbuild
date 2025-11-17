@@ -185,23 +185,12 @@ jobs:
           - Branch: ${{ env.REPO_BRANCH }}
           - Default Login Address：192.168.50.1
           - Firmware Kernel：${{ env.OPENWRT_VERSION_KERNEL }}
-          
-    - name: Delete Old Cache
-      run: |
-        gh cache list --key ${{ env.REPO_URL }}-${{ env.REPO_BRANCH }}-${{ env.OPENWRT_DEVICE_TARGET }}-${{ env.OPENWRT_BUILD_DATE }}- --json key --jq '.[] | .key' | while read -r key; do
-        gh cache delete "$key"
-        done
-        echo "========cache status========"
-        echo "ccache: $(du -sh $OPENWRT_PATH/.ccache | cut -f 1)"
-        echo "staging: $(du -sh $OPENWRT_PATH/staging_dir | cut -f 1)"
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
     - name: Delete Workflow Runs
       uses: Mattraks/delete-workflow-runs@main
       with:
         retain_days: 0
-        keep_minimum_runs: 2
+        keep_minimum_runs: 3
 
     - name: Remove Old Releases
       uses: dev-drprasad/delete-older-releases@master
