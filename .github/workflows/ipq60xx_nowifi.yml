@@ -41,13 +41,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Combine Disks
-      uses: easimon/maximize-build-space@master
-      with:
-        swap-size-mb: 1024
-        temp-reserve-mb: 100
-        root-reserve-mb: 1024
-        
     - name: Checkout
       uses: actions/checkout@main
       
