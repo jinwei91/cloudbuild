@@ -26,6 +26,7 @@ on:
 env:
   REPO_URL: https://github.com/LiBwrt/openwrt-6.x.git
   REPO_BRANCH: k6.12-nss
+  WORKING_DIR: openwrt
   CONFIG_FILE: configs/ipq60xx_nowifi.config
   SCRIPT_PACKAGES: scripts/packages.sh
   SCRIPT_SETTINGS: scripts/settings.sh
@@ -65,6 +66,13 @@ jobs:
         sudo bash -c 'bash <(curl -sL https://build-scripts.immortalwrt.org/init_build_environment.sh)'
         sudo -E systemctl daemon-reload
         sudo timedatectl set-timezone "$TZ"
+
+    - name: SSH connection to Actions
+      uses: P3TERX/ssh2actions@main
+      if: github.event.inputs.ssh == 'true' || contains(github.event.action, 'ssh')
+      env:
+        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
 
     - name: Clone Source Code
       run: |
@@ -109,12 +117,7 @@ jobs:
         ./scripts/feeds update -a
         ./scripts/feeds install -a
 
-    - name: SSH connection to Actions
-      uses: P3TERX/ssh2actions@main
-      if: github.event.inputs.ssh == 'true' || contains(github.event.action, 'ssh')
-      env:
-        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-        TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+
   
     - name: Load Custom Configurations
       run: |
