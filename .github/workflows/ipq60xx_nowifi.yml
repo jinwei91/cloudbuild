@@ -70,6 +70,10 @@ jobs:
 
     - name: Clone Source Code
       run: |
+        sudo mkdir -p /mnt/$WORKING_DIR
+        sudo chown $USER:$USER /mnt/$WORKING_DIR
+        sudo ln -s /mnt/$WORKING_DIR $GITHUB_WORKSPACE/$WORKING_DIR
+        
         df -hT $GITHUB_WORKSPACE
         git clone --depth 1 -b $REPO_BRANCH $REPO_URL $WORKING_DIR
         find ./ -maxdepth 3 -type f -iname "*.sh" -exec dos2unix {} \; -exec chmod +x {} \;
