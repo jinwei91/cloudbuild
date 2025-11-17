@@ -70,7 +70,9 @@ jobs:
     - name: Clone Source Code
       run: |
         df -hT $GITHUB_WORKSPACE
-        git clone --depth 1 -b $REPO_BRANCH $REPO_URL $WORKING-DIRECTORY
+        #git clone --depth 1 -b $REPO_BRANCH $REPO_URL $WORKING-DIRECTORY
+        git clone --depth 1 -b $REPO_BRANCH $REPO_URL openwrt
+
         find ./ -maxdepth 3 -type f -iname "*.sh" -exec dos2unix {} \; -exec chmod +x {} \;
     
     - name: Initialize Values
