@@ -77,7 +77,7 @@ jobs:
     - name: Clone Source Code
       run: |
         df -hT $GITHUB_WORKSPACE
-        git clone --depth 1 -b $REPO_BRANCH $REPO_URL openwrt
+        git clone --depth 1 -b $REPO_BRANCH $REPO_URL $WORKING_DIR
 
         find ./ -maxdepth 3 -type f -iname "*.sh" -exec dos2unix {} \; -exec chmod +x {} \;
     
@@ -85,7 +85,7 @@ jobs:
       run: |
         echo "OPENWRT_BUILD_DATE=$(TZ=UTC-8 date +"%Y-%m-%d %H:%M:%S")" >> $GITHUB_ENV
         echo "OPENWRT_DEVICE_TARGET=$(grep -m 1 -oP '^CONFIG_TARGET_\K[\w]+(?=\=y)' $CONFIG_FILE)" >> $GITHUB_ENV
-        echo "OPENWRT_PATH=$GITHUB_WORKSPACE/openwrt" >> $GITHUB_ENV
+        echo "OPENWRT_PATH=$GITHUB_WORKSPACE/$WORKING_DIR" >> $GITHUB_ENV
 
     - name: Load Custom Feeds & Packages
       run: |
