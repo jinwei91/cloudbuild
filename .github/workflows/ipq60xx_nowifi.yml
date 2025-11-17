@@ -96,7 +96,7 @@ jobs:
       uses: actions/cache@main
       with:
         key: ${{ env.REPO_URL }}-${{ env.REPO_BRANCH }}-${{ env.OPENWRT_DEVICE_TARGET }}-${{ env.OPENWRT_BUILD_DATE }}
-        restore-keys: ${{ env.REPO_URL }}-${{ env.REPO_BRANCH }}-${{ env.OPENWRT_DEVICE_TARGET }}
+        restore-keys: ${{ env.REPO_URL }}-${{ env.REPO_BRANCH }}-${{ env.OPENWRT_DEVICE_TARGET }}-
         path: |
           ${{ env.OPENWRT_PATH }}/.ccache
           ${{ env.OPENWRT_PATH }}/staging_dir/host*
