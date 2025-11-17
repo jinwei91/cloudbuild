@@ -57,6 +57,7 @@ jobs:
         DEBIAN_FRONTEND: noninteractive
       run: |
         sudo docker image prune --all --force
+        sudo -E apt -yqq purge firefox
         sudo -E apt -yqq update
         sudo -E apt -yqq full-upgrade
         sudo -E apt -yqq autoremove --purge
