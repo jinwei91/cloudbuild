@@ -71,6 +71,7 @@ jobs:
       run: |
         df -hT $GITHUB_WORKSPACE
         git clone --depth 1 -b $REPO_BRANCH $REPO_URL $WORKING-DIRECTORY
+        find ./ -maxdepth 3 -type f -iname "*.sh" -exec dos2unix {} \; -exec chmod +x {} \;
     
     - name: Initialize Values
       run: |
@@ -80,7 +81,7 @@ jobs:
 
     - name: Load Custom Feeds & Packages
       run: |
-        chmod +x $GITHUB_WORKSPACE/$SCRIPT_PACKAGES
+        #chmod +x $GITHUB_WORKSPACE/$SCRIPT_PACKAGES
         cd $OPENWRT_PATH
         $GITHUB_WORKSPACE/$DIY_SCRIPT
 
@@ -119,7 +120,7 @@ jobs:
       run: |
         [ -e files ] && mv files $OPENWRT_PATH/files
         [ -e $GITHUB_WORKSPACE/$CONFIG_FILE ] && cat $GITHUB_WORKSPACE/$CONFIG_FILE > $OPENWRT_PATH/.config
-        chmod +x $GITHUB_WORKSPACE/$SCRIPT_SETTINGS
+        #chmod +x $GITHUB_WORKSPACE/$SCRIPT_SETTINGS
         cd $OPENWRT_PATH
         $GITHUB_WORKSPACE/$SCRIPT_SETTINGS
 
@@ -138,8 +139,6 @@ jobs:
         echo -e "$(nproc) thread compile"
         make -j$(nproc) || make -j1 || make -j1 V=s
         echo "status=success" >> $GITHUB_OUTPUT
-        grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > OPENWRT_DEVICE_NAME
-        [ -s OPENWRT_DEVICE_NAME ] && echo "OPENWRT_DEVICE_NAME=_$(cat OPENWRT_DEVICE_NAME)" >> $GITHUB_ENV
 
     - name: Check Space Usage
       if: (!cancelled())
@@ -149,23 +148,26 @@ jobs:
       uses: actions/upload-artifact@main
       if: steps.compile.outputs.status == 'success' && env.UPLOAD_BIN_DIR == 'true' && !cancelled()
       with:
-        name: OpenWrt_bin_${{ env.OPENWRT_DEVICE_NAME }}_${{ env.OPENWRT_BUILD_DATE }}
+        name: OpenWrt_bin_${{ env.OPENWRT_DEVICE_TARGET }}_${{ env.OPENWRT_BUILD_DATE }}
         path: ${{ env.OPENWRT_PATH }}/bin
 
     - name: Organize Files
       id: organize
       if: steps.compile.outputs.status == 'success' && env.UPLOAD_FIRMWARE == 'true' && !cancelled()
       run: |
-        echo "OPENWRT_VERSION_KERNEL=$(find $OPENWRT_PATH/bin/targets/ -type f -name "*.manifest" -exec grep -oP '^kernel - \K[\d\.]+' {} \;)" >> $GITHUB_ENV
+        cd $OPENWRT_PATH && mkdir -p $OPENWRT_PATH/upload
         cp $OPENWRT_PATH/.config ${{ env.FIRMWARE_TAG }}.config
-        rm -rf packages
-        echo "OPENWRT_FIRMWARE_PATH=$PWD" >> $GITHUB_ENV
+        echo "OPENWRT_VERSION_KERNEL=$(find $OPENWRT_PATH/bin/targets/ -type f -name "*.manifest" -exec grep -oP '^kernel - \K[\d\.]+' {} \;)" >> $GITHUB_ENV
+        
+        find $OPENWRT_PATH/bin/targets/ -iregex ".*\(buildinfo\|json\|sha256sums\|packages\)$" -exec rm -rf {} +
+        find $OPENWRT_PATH/bin/targets/ -type f -exec mv -f {} $OPENWRT_PATH/upload/ \;
+        echo "OPENWRT_FIRMWARE_PATH=$OPENWRT_PATH/upload" >> $GITHUB_ENV
 
     - name: Upload Firmware Directory
       uses: actions/upload-artifact@main
       if: steps.compile.outputs.status == 'success' && env.UPLOAD_FIRMWARE == 'true' && !cancelled() 
       with:
-        name: OpenWrt_firmware_${{ env.OPENWRT_DEVICE_NAME }}_${{ env.OPENWRT_BUILD_DATE }}
+        name: OpenWrt_firmware_${{ env.OPENWRT_DEVICE_TARGET }}_${{ env.OPENWRT_BUILD_DATE }}
         path: ${{ env.OPENWRT_FIRMWARE_PATH }}
 
     - name: Upload Firmware To Release
