@@ -26,7 +26,7 @@ on:
 env:
   REPO_URL: https://github.com/LiBwrt/openwrt-6.x.git
   REPO_BRANCH: k6.12-nss
-  FEEDS_FILE: configs/ipq60xx_nowifi.feeds
+  WORKING-DIRECTORY: openwrt
   CONFIG_FILE: configs/ipq60xx_nowifi.config
   SCRIPT_PACKAGES: scripts/packages.sh
   SCRIPT_SETTINGS: scripts/settings.sh
@@ -44,7 +44,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@main
       
-    - name: Check Server Performance
+    - name: Check Server Info.
       run: |
         echo "Physical CPU Number: $(cat /proc/cpuinfo | grep 'physical id' | sort | uniq | wc -l)"
         echo -e "CPU Model: $(cat /proc/cpuinfo | grep name | cut -f2 -d: | uniq -c)"
@@ -52,10 +52,11 @@ jobs:
         echo -e "$(sudo lshw -short -C memory | grep GiB)"
         echo "Disk Info: $(ls /dev/sd* | grep -v [1-9] | wc -l)" && df -hT
       
-    - name: Initialization Environment
+    - name: Initialize Environment
       env:
         DEBIAN_FRONTEND: noninteractive
       run: |
+        sudo docker image prune --all --force
         sudo -E apt -yqq update
         sudo -E apt -yqq full-upgrade
         sudo -E apt -yqq autoremove --purge
@@ -65,49 +66,35 @@ jobs:
         sudo bash -c 'bash <(curl -sL https://build-scripts.immortalwrt.org/init_build_environment.sh)'
         sudo -E systemctl daemon-reload
         sudo timedatectl set-timezone "$TZ"
-        export BUILD_DATE=$(date +"%Y-%m-%d %H:%M:%S")
-        echo "BUILD_DATE=$BUILD_DATE" >> $GITHUB_ENV
 
     - name: Clone Source Code
       run: |
         df -hT $GITHUB_WORKSPACE
-        git clone --depth 1 -b $REPO_BRANCH $REPO_URL openwrt
-        cd openwrt
-        echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
-        VERSION_KERNEL=$(grep -oP 'LINUX_KERNEL_HASH-\K[0-9]+\.[0-9]+\.[0-9]+' target/linux/generic/kernel-6.12)
-        echo "VERSION_KERNEL=$VERSION_KERNEL" >> $GITHUB_ENV
+        git clone --depth 1 -b $REPO_BRANCH $REPO_URL $WORKING-DIRECTORY
+    
+    - name: Initialize Values
+      run: |
+        echo "OPENWRT_BUILD_DATE=$(TZ=UTC-8 date +"%Y-%m-%d %H:%M:%S")" >> $GITHUB_ENV
+        echo "OPENWRT_DEVICE_TARGET=$(grep -m 1 -oP '^CONFIG_TARGET_\K[\w]+(?=\=y)' $CONFIG_FILE)" >> $GITHUB_ENV
+        echo "OPENWRT_PATH=$GITHUB_WORKSPACE/$WORKING-DIRECTORY" >> $GITHUB_ENV
 
-    #- name: Load Custom Feeds
-    #  run: |
-    #    [ -e $FEEDS_CONF ] && cat $GITHUB_WORKSPACE/$FEEDS_FILE >> $OPENWRT_PATH/feeds.conf.default
-    #    chmod +x $SCRIPT_PACKAGES
-    #    cd $OPENWRT_PATH
-    #    $GITHUB_WORKSPACE/$DIY_SCRIPT
+    - name: Load Custom Feeds & Packages
+      run: |
+        chmod +x $GITHUB_WORKSPACE/$SCRIPT_PACKAGES
+        cd $OPENWRT_PATH
+        $GITHUB_WORKSPACE/$DIY_SCRIPT
 
-    #- name: Generate Variables
-      #run: |
-        #cp $CONFIG_FILE $OPENWRT_PATH/.config
-        #cd $OPENWRT_PATH
-        #make defconfig > /dev/null 2>&1
-        #SOURCE_REPO="$(echo $REPO_URL | awk -F '/' '{print $(NF)}')"
-        #echo "SOURCE_REPO=$SOURCE_REPO" >> $GITHUB_ENV
-        #DEVICE_TARGET=$(cat .config | grep CONFIG_TARGET_BOARD | awk -F '"' '{print $2}')
-        #echo "DEVICE_TARGET=$DEVICE_TARGET" >> $GITHUB_ENV
-        #DEVICE_SUBTARGET=$(cat .config | grep CONFIG_TARGET_SUBTARGET | awk -F '"' '{print $2}')
-        #echo "DEVICE_SUBTARGET=$DEVICE_SUBTARGET" >> $GITHUB_ENV
-        #echo "HASH=$(git log -1 --pretty=format:'%h')" >> $GITHUB_ENV
-        #echo "CACHE_DATE=$(date +"%Y-%m-%d %H:%M:%S")" >> $GITHUB_ENV
-
-    - name: Cache Toolchain
+    - name: Check Caches
       uses: actions/cache@main
       with:
-        key: ${{ env.SOURCE_REPO }}-${{ env.REPO_BRANCH }}-${{ env.DEVICE_TARGET }}-${{ env.DEVICE_SUBTARGET }}-${{ env.HASH }} ${{ env.CACHE_DATE }}
-        restore-keys: ${{ env.SOURCE_REPO }}-${{ env.REPO_BRANCH }}-${{ env.DEVICE_TARGET }}-${{ env.DEVICE_SUBTARGET }}-
+        key: ${{ env.REPO_URL }}-${{ env.REPO_BRANCH }}-${{ env.OPENWRT_DEVICE_TARGET }}-${{ env.OPENWRT_BUILD_DATE }}
+        restore-keys: ${{ env.REPO_URL }}-${{ env.REPO_BRANCH }}-${{ env.OPENWRT_DEVICE_TARGET }}
         path: |
           ${{ env.OPENWRT_PATH }}/.ccache
-          ${{ env.OPENWRT_PATH }}/staging_dir
+          ${{ env.OPENWRT_PATH }}/staging_dir/host*
+          ${{ env.OPENWRT_PATH }}/staging_dir/tool*
 
-    - name: Refresh The Cache
+    - name: Update Caches
       run: |
         if [ -d "$OPENWRT_PATH/staging_dir" ]; then
           find "$OPENWRT_PATH/staging_dir" -type d -name "stamp" -not -path "*target*" | while read -r dir; do
@@ -128,25 +115,13 @@ jobs:
         TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
         TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
   
-    - name: Load Custom Configuration
+    - name: Load Custom Configurations
       run: |
         [ -e files ] && mv files $OPENWRT_PATH/files
         [ -e $GITHUB_WORKSPACE/$CONFIG_FILE ] && cat $GITHUB_WORKSPACE/$CONFIG_FILE > $OPENWRT_PATH/.config
         chmod +x $GITHUB_WORKSPACE/$SCRIPT_SETTINGS
         cd $OPENWRT_PATH
         $GITHUB_WORKSPACE/$SCRIPT_SETTINGS
-
-    #- name: Custom Settings
-    #  run: |
-    #    if [[ "${WRT_CONFIG,,}" == *"test"* ]]; then
-    #      cat $GITHUB_WORKSPACE/Config/$WRT_CONFIG.txt >> .config
-    #    else
-    #      cat $GITHUB_WORKSPACE/Config/$WRT_CONFIG.txt $GITHUB_WORKSPACE/Config/GENERAL.txt >> .config
-    #    fi
-    #
-    #    $GITHUB_WORKSPACE/Scripts/Settings.sh
-    #
-    #    make defconfig -j$(nproc) && make clean -j$(nproc)
 
     - name: Download Packages
       run: |
@@ -163,18 +138,18 @@ jobs:
         echo -e "$(nproc) thread compile"
         make -j$(nproc) || make -j1 || make -j1 V=s
         echo "status=success" >> $GITHUB_OUTPUT
-        grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
-        [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
+        grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > OPENWRT_DEVICE_NAME
+        [ -s OPENWRT_DEVICE_NAME ] && echo "OPENWRT_DEVICE_NAME=_$(cat OPENWRT_DEVICE_NAME)" >> $GITHUB_ENV
 
     - name: Check Space Usage
       if: (!cancelled())
       run: df -hT
 
     - name: Upload Bin Directory
-      if: steps.compile.outputs.status == 'success' && env.UPLOAD_BIN_DIR == 'true' && !cancelled()
       uses: actions/upload-artifact@main
+      if: steps.compile.outputs.status == 'success' && env.UPLOAD_BIN_DIR == 'true' && !cancelled()
       with:
-        name: OpenWrt_bin${{ env.DEVICE_NAME }}${{ env.BUILD_DATE }}
+        name: OpenWrt_bin_${{ env.OPENWRT_DEVICE_NAME }}${{ env.OPENWRT_BUILD_DATE }}
         path: ${{ env.OPENWRT_PATH }}/bin
 
     - name: Organize Files
@@ -182,36 +157,46 @@ jobs:
       if: steps.compile.outputs.status == 'success' && env.UPLOAD_FIRMWARE == 'true' && !cancelled()
       run: |
         cd $OPENWRT_PATH/bin/targets/*/*
-        echo "VERSION_KERNEL=$(find -type f -name "*.manifest" -exec grep -oP '^kernel - \K.*?(?=~|-\d+-)' {} \;)" >> $GITHUB_ENV
-        cp $OPENWRT_PATH/.config ipq60xx_nowifi.config
-        cp config.buildinfo ipq60xx_nowifi.buildinfo
+        echo "OPENWRT_VERSION_KERNEL=$(find -type f -name "*.manifest" -exec grep -oP '^kernel - \K.*?(?=~|-\d+-)' {} \;)" >> $GITHUB_ENV
+        cp $OPENWRT_PATH/.config ${{ env.FIRMWARE_TAG }}.config
+        cp config.buildinfo ${{ env.FIRMWARE_TAG }}.buildinfo
         rm -rf packages
-        echo "FIRMWARE_PATH=$PWD" >> $GITHUB_ENV
+        echo "OPENWRT_FIRMWARE_PATH=$PWD" >> $GITHUB_ENV
 
     - name: Upload Firmware Directory
-      if: steps.compile.outputs.status == 'success' && env.UPLOAD_FIRMWARE == 'true' && !cancelled() 
       uses: actions/upload-artifact@main
+      if: steps.compile.outputs.status == 'success' && env.UPLOAD_FIRMWARE == 'true' && !cancelled() 
       with:
-        name: OpenWrt_firmware${{ env.DEVICE_NAME }}${{ env.BUILD_DATE }}
-        path: ${{ env.FIRMWARE_PATH }}
+        name: OpenWrt_firmware_${{ env.OPENWRT_DEVICE_NAME }}${{ env.OPENWRT_BUILD_DATE }}
+        path: ${{ env.OPENWRT_FIRMWARE_PATH }}
 
     - name: Upload Firmware To Release
-      if: steps.compile.outputs.status == 'success' && env.UPLOAD_FIRMWARE == 'true' && !cancelled() 
       uses: ncipollo/release-action@main
+      if: steps.compile.outputs.status == 'success' && env.UPLOAD_FIRMWARE == 'true' && !cancelled() 
       with:
         name: ${{ env.FIRMWARE_TAG }}
         allowUpdates: true
         tag: ${{ env.FIRMWARE_TAG }}
         token: ${{ secrets.GITHUB_TOKEN }}
-        artifacts: ${{ env.FIRMWARE_PATH }}/*
+        artifacts: ${{ env.OPENWRT_FIRMWARE_PATH }}/*
         body: |
           This is OpenWrt Firmware for ${{ env.FIRMWARE_TAG }}
           - Source Code: ${{ env.REPO_URL }}
           - Branch: ${{ env.REPO_BRANCH }}
           - Default Login Address：192.168.50.1
-          - Firmware Kernel：${{ env.VERSION_KERNEL }}
-          #- ${{ env.VERSION_INFO }}
-    
+          - Firmware Kernel：${{ env.OPENWRT_VERSION_KERNEL }}
+          
+    - name: Delete Old Cache
+      run: |
+        gh cache list --key ${{ env.REPO_URL }}-${{ env.REPO_BRANCH }}-${{ env.OPENWRT_DEVICE_TARGET }}-${{ env.OPENWRT_BUILD_DATE }}- --json key --jq '.[] | .key' | while read -r key; do
+        gh cache delete "$key"
+        done
+        echo "========cache status========"
+        echo "ccache: $(du -sh $OPENWRT_PATH/.ccache | cut -f 1)"
+        echo "staging: $(du -sh $OPENWRT_PATH/staging_dir | cut -f 1)"
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
     - name: Delete Workflow Runs
       uses: Mattraks/delete-workflow-runs@main
       with:
@@ -226,14 +211,3 @@ jobs:
         delete_tags: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Delete Old Cache
-      run: |
-        gh cache list --key ${{ env.SOURCE_REPO }}-${{ env.REPO_BRANCH }}-${{ env.DEVICE_TARGET }}-${{ env.DEVICE_SUBTARGET }}- --json key --jq '.[] | .key' | while read -r key; do
-        gh cache delete "$key"
-        done
-        echo "========cache status========"
-        echo "ccache: $(du -sh $OPENWRT_PATH/.ccache | cut -f 1)"
-        echo "staging: $(du -sh $OPENWRT_PATH/staging_dir | cut -f 1)"
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
