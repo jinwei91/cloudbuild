@@ -71,7 +71,6 @@ jobs:
       run: |
         df -hT $GITHUB_WORKSPACE
         git clone --depth 1 -b $REPO_BRANCH $REPO_URL $WORKING_DIR
-
         find ./ -maxdepth 3 -type f -iname "*.sh" -exec dos2unix {} \; -exec chmod +x {} \;
     
     - name: Initialize Values
