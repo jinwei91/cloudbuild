@@ -149,17 +149,15 @@ jobs:
       uses: actions/upload-artifact@main
       if: steps.compile.outputs.status == 'success' && env.UPLOAD_BIN_DIR == 'true' && !cancelled()
       with:
-        name: OpenWrt_bin_${{ env.OPENWRT_DEVICE_NAME }}${{ env.OPENWRT_BUILD_DATE }}
+        name: OpenWrt_bin_${{ env.OPENWRT_DEVICE_NAME }}_${{ env.OPENWRT_BUILD_DATE }}
         path: ${{ env.OPENWRT_PATH }}/bin
 
     - name: Organize Files
       id: organize
       if: steps.compile.outputs.status == 'success' && env.UPLOAD_FIRMWARE == 'true' && !cancelled()
       run: |
-        cd $OPENWRT_PATH/bin/targets/*/*
-        echo "OPENWRT_VERSION_KERNEL=$(find -type f -name "*.manifest" -exec grep -oP '^kernel - \K.*?(?=~|-\d+-)' {} \;)" >> $GITHUB_ENV
+        echo "OPENWRT_VERSION_KERNEL=$(find $OPENWRT_PATH/bin/targets/ -type f -name "*.manifest" -exec grep -oP '^kernel - \K[\d\.]+' {} \;)" >> $GITHUB_ENV
         cp $OPENWRT_PATH/.config ${{ env.FIRMWARE_TAG }}.config
-        cp config.buildinfo ${{ env.FIRMWARE_TAG }}.buildinfo
         rm -rf packages
         echo "OPENWRT_FIRMWARE_PATH=$PWD" >> $GITHUB_ENV
 
@@ -167,7 +165,7 @@ jobs:
       uses: actions/upload-artifact@main
       if: steps.compile.outputs.status == 'success' && env.UPLOAD_FIRMWARE == 'true' && !cancelled() 
       with:
-        name: OpenWrt_firmware_${{ env.OPENWRT_DEVICE_NAME }}${{ env.OPENWRT_BUILD_DATE }}
+        name: OpenWrt_firmware_${{ env.OPENWRT_DEVICE_NAME }}_${{ env.OPENWRT_BUILD_DATE }}
         path: ${{ env.OPENWRT_FIRMWARE_PATH }}
 
     - name: Upload Firmware To Release
