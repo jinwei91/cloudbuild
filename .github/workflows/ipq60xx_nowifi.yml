@@ -86,12 +86,12 @@ jobs:
         echo "OPENWRT_DEVICE_TARGET=$(grep -m 1 -oP '^CONFIG_TARGET_\K[\w]+(?=\=y)' $CONFIG_FILE)" >> $GITHUB_ENV
         echo "OPENWRT_PATH=$GITHUB_WORKSPACE/$WORKING_DIR" >> $GITHUB_ENV
 
-    #- name: SSH connection to Actions
-    #  uses: P3TERX/ssh2actions@main
-    #  if: github.event.inputs.ssh == 'true' || contains(github.event.action, 'ssh')
-    #  env:
-    #    TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-    #    TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+    - name: SSH connection to Actions
+      uses: P3TERX/ssh2actions@main
+      if: github.event.inputs.ssh == 'true' || contains(github.event.action, 'ssh')
+      env:
+        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
 
     - name: Load Custom Feeds & Packages
       run: |
