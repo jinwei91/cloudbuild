@@ -10,8 +10,6 @@
 # See /LICENSE for more information.
 #
 
-PKG_PATH="$GITHUB_WORKSPACE/$WORKING_DIR/package/"
-
 # Modify Default Login IP & Openwrt Broadcast IP
 sed -i "s/192\.168\.[0-9]*\.[0-9]*/192\.168\.50\.1/g" package/base-files/files/bin/config_generate
 sed -i "s/192\.168\.[0-9]*\.[0-9]*/192\.168\.50\.1/g" $(find ./feeds/luci/modules/luci-mod-system/ -type f -name "flash.js")
@@ -22,7 +20,7 @@ sed -i "s/(\(luciversion || ''\))/(\1) + (' \/ #Built on $OPENWRT_BUILD_DATE #')
 
 # Modify Default Theme
 sed -i "s/luci-theme-bootstrap/luci-theme-argon/g" $(find ./feeds/luci/collections/ -type f -name "Makefile")
-cd $PKG_PATH
+cd $GITHUB_WORKSPACE/$WORKING_DIR/package
 if [ -d *"luci-theme-argon"* ]; then
 	cd ./luci-theme-argon
 	sed -i "s/primary '.*'/primary '#31a1a1'/; s/'0.2'/'0.5'/; s/'600'/'normal'/" ./luci-app-argon-config/root/etc/config/argon
