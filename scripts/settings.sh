@@ -10,15 +10,15 @@
 # See /LICENSE for more information.
 #
 
-# Modify Default Login IP & Openwrt Broadcast IP
+# Update Default Login IP & Openwrt Broadcast IP
 sed -i "s/192\.168\.[0-9]*\.[0-9]*/192\.168\.50\.1/g" package/base-files/files/bin/config_generate
 sed -i "s/192\.168\.[0-9]*\.[0-9]*/192\.168\.50\.1/g" $(find ./feeds/luci/modules/luci-mod-system/ -type f -name "flash.js")
 
-# Modify Hostname
+# Update Hostname
 sed -i "s/hostname='.*'/hostname='OpenWrt'/g" package/base-files/files/bin/config_generate
 sed -i "s/(\(luciversion || ''\))/(\1) + (' \/ #Built on $OPENWRT_BUILD_DATE #')/g" $(find ./feeds/luci/modules/luci-mod-status/ -type f -name "10_system.js")
 
-# Modify Default Theme
+# Update Default Theme
 sed -i "s/luci-theme-bootstrap/luci-theme-argon/g" $(find ./feeds/luci/collections/ -type f -name "Makefile")
 cd $GITHUB_WORKSPACE/$WORKING_DIR/package
 if [ -d *"luci-theme-argon"* ]; then
@@ -46,7 +46,11 @@ if [ -f "$ASU_FILE" ]; then
 	rm -rf $ASU_FILE
 fi
 
-# Adjust the reserved size of the q6_region memory region in the NSS driver, ipq6018.dtsi default is 85MB, ipq6018-512m.dtsi default is 55MB, at least 54MB if build with WiFi firmware, the following are the reconfigurations to reserve 16MB, 32MB, 64MB, and 96MB respectively.
+# Update the reserved size of the q6_region memory region in the NSS driver.
+# ipq6018.dtsi default: 85MB
+# ipq6018-512m.dtsi default: 55MB
+# Enable Wi-Fi: at least 54MB
+# The followings are the reconfigurations to reserve 16MB, 32MB, 64MB, and 96MB.
 # sed -i 's/reg = <0x0 0x4ab00000 0x0 0x[0-9a-f]\+>/reg = <0x0 0x4ab00000 0x0 0x01000000>/' $GITHUB_WORKSPACE/$WORKING_DIR/target/linux/qualcommax/files/arch/arm64/boot/dts/qcom/ipq6018-512m.dtsi
 # sed -i 's/reg = <0x0 0x4ab00000 0x0 0x[0-9a-f]\+>/reg = <0x0 0x4ab00000 0x0 0x02000000>/' $GITHUB_WORKSPACE/$WORKING_DIR/target/linux/qualcommax/files/arch/arm64/boot/dts/qcom/ipq6018-512m.dtsi
 sed -i 's/reg = <0x0 0x4ab00000 0x0 0x[0-9a-f]\+>/reg = <0x0 0x4ab00000 0x0 0x04000000>/' $GITHUB_WORKSPACE/$WORKING_DIR/target/linux/qualcommax/files/arch/arm64/boot/dts/qcom/ipq6018-512m.dtsi
