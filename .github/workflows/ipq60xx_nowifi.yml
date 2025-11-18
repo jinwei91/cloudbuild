@@ -183,9 +183,9 @@ jobs:
       uses: ncipollo/release-action@main
       if: steps.compile.outputs.status == 'success' && env.UPLOAD_FIRMWARE == 'true' && !cancelled() 
       with:
-        name: ${{ env.FIRMWARE_TAG }}
+        name: ${{ env.FIRMWARE_TAG }}_${{ env.OPENWRT_BUILD_DATE }}
         allowUpdates: true
-        tag: ${{ env.FIRMWARE_TAG }}
+        tag: ${{ env.FIRMWARE_TAG }}_${{ env.OPENWRT_BUILD_DATE }}
         token: ${{ secrets.GITHUB_TOKEN }}
         artifacts: ${{ env.OPENWRT_FIRMWARE_PATH }}/*
         body: |
