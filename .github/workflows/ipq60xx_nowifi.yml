@@ -19,8 +19,8 @@ on:
         description: "SSH Connection to Actions"
         required: false
         default: false
-  schedule:
-    - cron: "0 4 * * 0" 
+  #schedule:
+  #  - cron: "0 4 * * 0" 
 
 env:
   REPO_URL: https://github.com/LiBwrt/openwrt-6.x.git
