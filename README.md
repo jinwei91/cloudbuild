@@ -1,3 +1,3 @@
-OpenWrt Cloud Build for Qualcomm IPQ60XX.
+OpenWrt Cloud Build for Qualcomm ipq60xx.
 
 Code Source: https://github.com/LiBwrt/openwrt-6.x
