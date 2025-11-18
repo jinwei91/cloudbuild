@@ -79,7 +79,7 @@ jobs:
     
     - name: Initialize Values
       run: |
-        echo "OPENWRT_BUILD_DATE=$(TZ=UTC-8 date +"%Y-%m-%d_%H-%M-%S")" >> $GITHUB_ENV
+        echo "OPENWRT_BUILD_DATE=$(date +"%Y-%m-%d_%H-%M-%S")" >> $GITHUB_ENV
         echo "OPENWRT_DEVICE_TARGET=$(grep -m 1 -oP '^CONFIG_TARGET_\K[\w]+(?=\=y)' $CONFIG_FILE)" >> $GITHUB_ENV
         echo "OPENWRT_PATH=$GITHUB_WORKSPACE/$WORKING_DIR" >> $GITHUB_ENV
 
