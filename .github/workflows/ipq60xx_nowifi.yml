@@ -23,8 +23,10 @@ on:
   #  - cron: "0 4 * * 0" 
 
 env:
-  REPO_URL: https://github.com/LiBwrt/openwrt-6.x.git
-  REPO_BRANCH: k6.12-nss
+  REPO_URL: https://github.com/VIKINGYFY/immortalwrt.git
+  REPO_BRANCH: main
+  #REPO_URL: https://github.com/LiBwrt/openwrt-6.x.git
+  #REPO_BRANCH: k6.12-nss
   WORKING_DIR: openwrt
   CONFIG_FILE: configs/ipq60xx_nowifi.config
   SCRIPT_PACKAGES: scripts/packages.sh
@@ -207,10 +209,5 @@ jobs:
       with:
         keep_latest: 3
         delete_tags: true
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    
-    - name: Clean Cache
-      run: gh cache delete --all
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
