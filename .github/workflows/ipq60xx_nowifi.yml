@@ -32,7 +32,7 @@ env:
   CONFIG_FILE: configs/ipq60xx_nowifi.config
   SCRIPT_PACKAGES: scripts/packages.sh
   SCRIPT_SETTINGS: scripts/settings.sh
-  UPLOAD_BIN_DIR: true
+  UPLOAD_BIN_DIR: false
   UPLOAD_FIRMWARE: true
   UPLOAD_RELEASE: true
   FIRMWARE_TAG: ipq60xx-nowifi-6.12-nss
