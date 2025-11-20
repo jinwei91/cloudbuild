@@ -201,7 +201,7 @@ jobs:
         retain_days: 0
         keep_minimum_runs: 3
 
-    - name: Remove Old Releases
+    - name: Delete Old Releases
       uses: dev-drprasad/delete-older-releases@master
       if: env.UPLOAD_RELEASE == 'true' && !cancelled()
       with:
@@ -209,3 +209,10 @@ jobs:
         delete_tags: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Delete old tags
+      run: |
+        TAGS=$(git tag --sort=committerdate | head -n -3)
+        for tag in $TAGS; do
+          git push --delete origin $tag || true
+        done
