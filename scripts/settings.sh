@@ -19,7 +19,7 @@ sed -i "s/192\.168\.[0-9]*\.[0-9]*/192\.168\.50\.1/g" $(find ./feeds/luci/module
 
 # Update Hostname
 sed -i "s/hostname='.*'/hostname='OpenWrt'/g" package/base-files/files/bin/config_generate
-sed -i "s/(\(luciversion || ''\))/(\1) + (' \/ #Built on $OPENWRT_BUILD_DATE #')/g" $(find ./feeds/luci/modules/luci-mod-status/ -type f -name "10_system.js")
+sed -i "s/(\(luciversion || ''\))/(\1) + (' \/ Built on $OPENWRT_BUILD_DATE')/g" $(find ./feeds/luci/modules/luci-mod-status/ -type f -name "10_system.js")
 
 # Update Default Theme
 sed -i "s/luci-theme-bootstrap/luci-theme-argon/g" $(find ./feeds/luci/collections/ -type f -name "Makefile")
@@ -32,29 +32,24 @@ fi
 cd $GITHUB_WORKSPACE/$WORKING_DIR
 
 # Update Boot Order of qca-nss-drv
-NSS_DRV="$GITHUB_WORKSPACE/$WORKING_DIR/feeds/nss_packages/qca-nss-drv/files/qca-nss-drv.init"
+NSS_DRV="./feeds/nss_packages/qca-nss-drv/files/qca-nss-drv.init"
 if [ -f "$NSS_DRV" ]; then
 	sed -i 's/START=.*/START=85/g' $NSS_DRV
 fi
 
 # Update Boot Order of qca-nss-pbuf
-NSS_PBUF="$GITHUB_WORKSPACE/$WORKING_DIR/kernel/mac80211/files/qca-nss-pbuf.init"
+NSS_PBUF="./kernel/mac80211/files/qca-nss-pbuf.init"
 if [ -f "$NSS_PBUF" ]; then
 	sed -i 's/START=.*/START=86/g' $NSS_PBUF
 fi
 
 # Remove luci-app-attendedsysupgrade
-ASU_FILE=$(find $GITHUB_WORKSPACE/$WORKING_DIR/feeds/luci/applications/luci-app-attendedsysupgrade/ -type f -name "11_upgrades.js")
+sed -i "/attendedsysupgrade/d" $(find ./feeds/luci/collections/ -type f -name "Makefile")
+ASU_FILE=$(find ./feeds/luci/applications/luci-app-attendedsysupgrade/ -type f -name "11_upgrades.js")
 if [ -f "$ASU_FILE" ]; then
 	rm -rf $ASU_FILE
 fi
 
-# Update the reserved size of the q6_region memory region in the NSS driver.
-# ipq6018.dtsi default: 85MB
-# ipq6018-512m.dtsi default: 55MB
-# Enable Wi-Fi: at least 54MB
-# The followings are the reconfigurations to reserve 16MB, 32MB, 64MB, and 96MB.
-# sed -i 's/reg = <0x0 0x4ab00000 0x0 0x[0-9a-f]\+>/reg = <0x0 0x4ab00000 0x0 0x01000000>/' $GITHUB_WORKSPACE/$WORKING_DIR/target/linux/qualcommax/files/arch/arm64/boot/dts/qcom/ipq6018-512m.dtsi
-# sed -i 's/reg = <0x0 0x4ab00000 0x0 0x[0-9a-f]\+>/reg = <0x0 0x4ab00000 0x0 0x02000000>/' $GITHUB_WORKSPACE/$WORKING_DIR/target/linux/qualcommax/files/arch/arm64/boot/dts/qcom/ipq6018-512m.dtsi
-sed -i 's/reg = <0x0 0x4ab00000 0x0 0x[0-9a-f]\+>/reg = <0x0 0x4ab00000 0x0 0x04000000>/' $GITHUB_WORKSPACE/$WORKING_DIR/target/linux/qualcommax/files/arch/arm64/boot/dts/qcom/ipq6018-512m.dtsi
-# sed -i 's/reg = <0x0 0x4ab00000 0x0 0x[0-9a-f]\+>/reg = <0x0 0x4ab00000 0x0 0x06000000>/' $GITHUB_WORKSPACE/$WORKING_DIR/target/linux/qualcommax/files/arch/arm64/boot/dts/qcom/ipq6018-512m.dtsi
+# Update for Qualcomm
+DTS_PATH="./target/linux/qualcommax/files/arch/arm64/boot/dts/qcom/"
+find $DTS_PATH -type f ! -iname '*nowifi*' -exec sed -i 's/ipq\(6018\|8074\).dtsi/ipq\1-nowifi.dtsi/g' {} +
