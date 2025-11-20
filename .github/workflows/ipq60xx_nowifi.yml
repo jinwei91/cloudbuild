@@ -15,7 +15,7 @@ name: OpenWrt Build
 on:
   workflow_dispatch:
     inputs:
-      repo：
+      repo:
         required: true
         description: "Repo Select"
         type: choice
