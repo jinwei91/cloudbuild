@@ -15,10 +15,19 @@ name: OpenWrt Build
 on:
   workflow_dispatch:
     inputs:
+      git_repo：
+        required: true
+        description: "Repo Select"
+        type: choice
+        default: immortalwrt
+        options:
+          - immortalwrt
+          - libwrt
       ssh:
         description: "SSH Connection to Actions"
         required: false
         default: false
+
   #schedule:
   #  - cron: "0 4 * * 0" 
 
