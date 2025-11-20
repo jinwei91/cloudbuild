@@ -131,7 +131,7 @@ jobs:
   
     - name: Load Custom Configurations
       run: |
-        cat $GITHUB_WORKSPACE/$CONFIG_FILE >> $OPENWRT_PATH/.config
+        cat $GITHUB_WORKSPACE/$CONFIG_FILE > $OPENWRT_PATH/.config
         cd $OPENWRT_PATH
         $GITHUB_WORKSPACE/$SCRIPT_SETTINGS
 
