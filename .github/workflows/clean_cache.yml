@@ -1,4 +1,4 @@
-name: Cache-Clean
+name: clean_caches
 
 on:
   schedule:
