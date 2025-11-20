@@ -15,14 +15,6 @@ name: OpenWrt Build
 on:
   workflow_dispatch:
     inputs:
-      repo:
-        required: true
-        description: "Repo Select"
-        type: choice
-        default: immortalwrt
-        options:
-          - immortalwrt
-          - libwrt
       ssh:
         description: "SSH Connection to Actions"
         required: false
@@ -32,10 +24,10 @@ on:
     - cron: "0 4 * * 0" 
 
 env:
-  #REPO_URL: https://github.com/VIKINGYFY/immortalwrt.git
-  #REPO_BRANCH: main
-  REPO_URL: https://github.com/LiBwrt/openwrt-6.x.git
-  REPO_BRANCH: k6.12-nss
+  REPO_URL: https://github.com/VIKINGYFY/immortalwrt.git
+  REPO_BRANCH: main
+  #REPO_URL: https://github.com/LiBwrt/openwrt-6.x.git
+  #REPO_BRANCH: k6.12-nss
   WORKING_DIR: openwrt
   CONFIG_FILE: configs/ipq60xx_nowifi.config
   SCRIPT_PACKAGES: scripts/packages.sh
