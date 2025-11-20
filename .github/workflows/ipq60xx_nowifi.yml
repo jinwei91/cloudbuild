@@ -15,7 +15,7 @@ name: OpenWrt Build
 on:
   workflow_dispatch:
     inputs:
-      git_repo：
+      repo：
         required: true
         description: "Repo Select"
         type: choice
@@ -28,8 +28,8 @@ on:
         required: false
         default: false
 
-  #schedule:
-  #  - cron: "0 4 * * 0" 
+  schedule:
+    - cron: "0 4 * * 0" 
 
 env:
   #REPO_URL: https://github.com/VIKINGYFY/immortalwrt.git
