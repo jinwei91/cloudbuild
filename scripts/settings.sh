@@ -62,3 +62,5 @@ DTS_PATH="./target/linux/qualcommax/files/arch/arm64/boot/dts/qcom/"
 find $DTS_PATH -type f ! -iname '*nowifi*' -exec sed -i 's/ipq\(6018\|8074\).dtsi/ipq\1-nowifi.dtsi/g' {} +
 find $DTS_PATH -type f -name "ipq6018-nowifi.dtsi" -exec sed -i 's/reg = <0x0 0x4ab00000 0x0 0x[0-9a-f]\+>/reg = <0x0 0x4ab00000 0x0 0x3700000>/' {} +
 #find $DTS_PATH -type f -name "ipq6018-nowifi.dtsi" -exec sed -i '/&q6_etr_region/,/&ramoops_region/ s/^/# /' {} +
+wget -P $DTS_PATH https://raw.githubusercontent.com/immortalwrt/immortalwrt/refs/heads/master/target/linux/qualcommax/files/arch/arm64/boot/dts/qcom/ipq6018-cp-cpu.dtsi
+wget -P $DTS_PATH https://raw.githubusercontent.com/immortalwrt/immortalwrt/refs/heads/master/target/linux/qualcommax/files/arch/arm64/boot/dts/qcom/ipq6018-cpr-regulator.dtsi
