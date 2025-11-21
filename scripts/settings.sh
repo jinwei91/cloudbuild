@@ -53,3 +53,4 @@ fi
 # Update for Qualcomm
 DTS_PATH="./target/linux/qualcommax/files/arch/arm64/boot/dts/qcom/"
 find $DTS_PATH -type f ! -iname '*nowifi*' -exec sed -i 's/ipq\(6018\|8074\).dtsi/ipq\1-nowifi.dtsi/g' {} +
+find $DTS_PATH -type f -name "ipq6018-nowifi.dtsi" -exec sed -i 's/reg = <0x0 0x4ab00000 0x0 0x[0-9a-f]\+>/reg = <0x0 0x4ab00000 0x0 0x3700000>/' {} +
