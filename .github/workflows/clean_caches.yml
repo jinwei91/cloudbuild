@@ -2,7 +2,7 @@ name: Clean Caches
 
 on:
   schedule:
-    - cron: "0 1 * * 0"
+    - cron: "0 1 * * 6"
   workflow_dispatch:
 
 permissions: write-all
