@@ -29,7 +29,7 @@ env:
   #REPO_URL: https://github.com/LiBwrt/openwrt-6.x.git
   #REPO_BRANCH: k6.12-nss
   WORKING_DIR: openwrt
-  CONFIG_FILE: configs/ipq60xx_nowifi.config
+  CONFIG_FILE: configs/ipq60xx_nowifi_6.12.config
   SCRIPT_PACKAGES: scripts/packages.sh
   SCRIPT_SETTINGS: scripts/settings.sh
   UPLOAD_BIN_DIR: false
