@@ -19,10 +19,3 @@ jobs:
 
       - name: Cache Clean
         run: gh cache delete --all
-        
-      - name: Delete Workflow Runs
-        uses: Mattraks/delete-workflow-runs@main
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          retain_days: 7
-          keep_minimum_runs: 3
