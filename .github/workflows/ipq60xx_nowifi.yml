@@ -199,7 +199,7 @@ jobs:
       uses: Mattraks/delete-workflow-runs@main
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        retain_days: 0
+        retain_days: 7
         keep_minimum_runs: 3
 
     - name: Delete Old Releases
