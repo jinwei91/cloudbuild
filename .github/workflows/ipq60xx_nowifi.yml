@@ -21,7 +21,7 @@ on:
         default: false
 
   schedule:
-    - cron: "0 2 * * 6" 
+    - cron: "0 0 * * 6" 
 
 env:
   REPO_URL: https://github.com/VIKINGYFY/immortalwrt.git
@@ -194,26 +194,3 @@ jobs:
           - Branch: ${{ env.REPO_BRANCH }}
           - Default Login Address：192.168.50.1
           - Firmware Kernel：${{ env.OPENWRT_VERSION_KERNEL }}
-        
-    - name: Delete Workflow Runs
-      uses: Mattraks/delete-workflow-runs@main
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        retain_days: 7
-        keep_minimum_runs: 3
-
-    - name: Delete Old Releases
-      uses: dev-drprasad/delete-older-releases@master
-      if: env.UPLOAD_RELEASE == 'true' && !cancelled()
-      with:
-        keep_latest: 3
-        delete_tags: true
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Delete old tags
-      run: |
-        TAGS=$(git tag --sort=committerdate | head -n -3)
-        for tag in $TAGS; do
-          git push --delete origin $tag || true
-        done
