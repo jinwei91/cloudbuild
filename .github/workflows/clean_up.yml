@@ -1,8 +1,8 @@
-name: Clean Caches
+name: Clean Up
 
 on:
   schedule:
-    - cron: "0 1 * * 6"
+    - cron: "0 5 * * 6"
   workflow_dispatch:
 
 permissions: write-all
@@ -24,12 +24,12 @@ jobs:
         uses: Mattraks/delete-workflow-runs@main
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          retain_days: 7
+          repository: ${{ github.repository }
+          retain_days: 5
           keep_minimum_runs: 3
 
       - name: Delete Old Releases
         uses: dev-drprasad/delete-older-releases@master
-        if: env.UPLOAD_RELEASE == 'true' && !cancelled()
         with:
           keep_latest: 3
           delete_tags: true
@@ -40,3 +40,5 @@ jobs:
         run: |
           TAGS=$(git tag --sort=committerdate | head -n -3)
           for tag in $TAGS; do
+            git push --delete origin $tag || true
+          done
