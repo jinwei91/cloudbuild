@@ -27,7 +27,7 @@ env:
   REPO_URL: https://github.com/VIKINGYFY/immortalwrt.git
   REPO_BRANCH: main
   #REPO_URL: https://github.com/LiBwrt/openwrt-6.x.git
-  #REPO_BRANCH: k6.12-nss
+  #REPO_BRANCH: main-nss
   WORKING_DIR: openwrt
   CONFIG_FILE: configs/ipq60xx_nowifi_6.x.config
   SCRIPT_PACKAGES: scripts/packages.sh
@@ -35,7 +35,7 @@ env:
   UPLOAD_BIN_DIR: false
   UPLOAD_FIRMWARE: true
   UPLOAD_RELEASE: true
-  FIRMWARE_TAG: ipq60xx-nowifi-6.18-nss
+  FIRMWARE_TAG: ipq60xx-nowifi-6.x-nss
   TZ: Asia/Shanghai
 
 jobs:
