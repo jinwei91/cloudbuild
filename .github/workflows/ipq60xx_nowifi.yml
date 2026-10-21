@@ -27,7 +27,7 @@ env:
   REPO_URL: https://github.com/VIKINGYFY/immortalwrt.git
   REPO_BRANCH: main
   #REPO_URL: https://github.com/LiBwrt/openwrt-6.x.git
-  #REPO_BRANCH: main-nss
+  #REPO_BRANCH: 25.12-nss
   WORKING_DIR: openwrt
   CONFIG_FILE: configs/ipq60xx_nowifi_6.x.config
   SCRIPT_PACKAGES: scripts/packages.sh
@@ -85,13 +85,6 @@ jobs:
         echo "OPENWRT_BUILD_DATE=$(date +"%Y-%m-%d_%H-%M-%S")" >> $GITHUB_ENV
         echo "OPENWRT_DEVICE_TARGET=$(grep -m 1 -oP '^CONFIG_TARGET_\K[\w]+(?=\=y)' $CONFIG_FILE)" >> $GITHUB_ENV
         echo "OPENWRT_PATH=$GITHUB_WORKSPACE/$WORKING_DIR" >> $GITHUB_ENV
-
-    #- name: SSH connection to Actions
-    #  uses: P3TERX/ssh2actions@main
-    #  if: github.event.inputs.ssh == 'true' || contains(github.event.action, 'ssh')
-    #  env:
-    #    TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-    #    TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
 
     - name: Load Custom Feeds & Packages
       run: |
