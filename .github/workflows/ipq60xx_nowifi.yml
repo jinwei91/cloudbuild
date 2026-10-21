@@ -76,6 +76,8 @@ jobs:
         
         df -hT $GITHUB_WORKSPACE
         git clone --depth 1 -b $REPO_BRANCH $REPO_URL $WORKING_DIR
+        echo "OPENWRT_UPSTREAM_SHA=$(git -C $WORKING_DIR rev-parse --short HEAD)" >> $GITHUB_ENV
+        echo "OPENWRT_UPSTREAM_DATE=$(git -C $WORKING_DIR log -1 --format=%cd --date=short)" >> $GITHUB_ENV
         find ./ -maxdepth 3 -type f -iname "*.sh" -exec dos2unix {} \; -exec chmod +x {} \;
     
     - name: Initialize Values
@@ -189,4 +191,5 @@ jobs:
           - Branch: ${{ env.REPO_BRANCH }}
           - Default Login Address：192.168.50.1
           - Upstream Commit：${{ env.OPENWRT_UPSTREAM_SHA }}
+          - Upstream Date：${{ env.OPENWRT_UPSTREAM_DATE }}
           - Firmware Kernel：${{ env.OPENWRT_VERSION_KERNEL }}
