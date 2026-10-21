@@ -122,8 +122,11 @@ jobs:
   
     - name: Load Custom Configurations
       run: |
-        [ -e $GITHUB_WORKSPACE/$CONFIG_FILE ] && cat $GITHUB_WORKSPACE/$CONFIG_FILE > $OPENWRT_PATH/.config
-        cd $OPENWRT_PATH
+        CFG="$GITHUB_WORKSPACE/$CONFIG_FILE"
+        [ -f "$CFG" ] || { echo "::error::config file not found: $CFG"; exit 1; }
+        cat "$CFG" > "$OPENWRT_PATH/.config"
+        [ -s "$OPENWRT_PATH/.config" ] || { echo "::error::.config is empty after load: $CFG"; exit 1; }
+        cd "$OPENWRT_PATH"
         $GITHUB_WORKSPACE/$SCRIPT_SETTINGS
 
     - name: Download Packages
