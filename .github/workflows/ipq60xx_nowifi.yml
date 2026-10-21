@@ -160,13 +160,14 @@ jobs:
       id: organize
       if: steps.compile.outputs.status == 'success' && env.UPLOAD_FIRMWARE == 'true' && !cancelled()
       run: |
-        cd $OPENWRT_PATH && mkdir -p $OPENWRT_PATH/upload
-        cp $OPENWRT_PATH/.config $OPENWRT_PATH/upload/${{ env.FIRMWARE_TAG }}.config
+        mkdir -p "$OPENWRT_PATH/upload"
+        cp "$OPENWRT_PATH/.config" "$OPENWRT_PATH/upload/${{ env.FIRMWARE_TAG }}.config"
         echo "OPENWRT_VERSION_KERNEL=$(find $OPENWRT_PATH/bin/targets/ -type f -name '*.manifest' -exec grep -hoP '^kernel - \K[\d\.]+' {} + | head -n1)" >> $GITHUB_ENV
-        
-        find $OPENWRT_PATH/bin/targets/ -maxdepth 2 -type f \( -name "sha256sums" -o -name "*.buildinfo" \) -exec mv -f {} $OPENWRT_PATH/upload/ \;
+        find $OPENWRT_PATH/bin/targets/ -maxdepth 2 -type f \( -name "sha256sums" -o -name "*.buildinfo" \) -exec mv -f {} "$OPENWRT_PATH/upload/" \;
         find $OPENWRT_PATH/bin/targets/ -iregex ".*\(json\|packages\)$" -exec rm -rf {} +
-        find $OPENWRT_PATH/bin/targets/ -type f -exec mv -f {} $OPENWRT_PATH/upload/ \;
+        find $OPENWRT_PATH/bin/targets/ -type f -exec mv -f {} "$OPENWRT_PATH/upload/" \;
+        (cd "$OPENWRT_PATH/upload" && sha256sum -- * > sha256sums)
+        ls -la "$OPENWRT_PATH/upload"
         echo "OPENWRT_FIRMWARE_PATH=$OPENWRT_PATH/upload" >> $GITHUB_ENV
 
     - name: Upload Firmware Directory
