@@ -23,7 +23,6 @@ on:
   schedule:
     - cron: "0 0 * * 6" 
 
-
 env:
   REPO_URL: https://github.com/VIKINGYFY/immortalwrt.git
   REPO_BRANCH: main
