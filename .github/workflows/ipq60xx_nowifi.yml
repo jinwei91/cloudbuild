@@ -23,6 +23,7 @@ on:
   schedule:
     - cron: "0 0 * * 6" 
 
+
 env:
   REPO_URL: https://github.com/VIKINGYFY/immortalwrt.git
   REPO_BRANCH: main
@@ -38,13 +39,16 @@ env:
   FIRMWARE_TAG: ipq60xx-nowifi-6.x-nss
   TZ: Asia/Shanghai
 
+permissions:
+  contents: write
+
 jobs:
   Build:
     runs-on: ubuntu-24.04
 
     steps:
     - name: Checkout
-      uses: actions/checkout@main
+      uses: actions/checkout@v4
       
     - name: Check Server Info.
       run: |
@@ -92,7 +96,7 @@ jobs:
         $GITHUB_WORKSPACE/$SCRIPT_PACKAGES
 
     - name: Check Caches
-      uses: actions/cache@main
+      uses: actions/cache@v4
       with:
         key: ${{ env.REPO_URL }}-${{ env.REPO_BRANCH }}-${{ env.OPENWRT_DEVICE_TARGET }}-${{ env.OPENWRT_BUILD_DATE }}
         restore-keys: ${{ env.REPO_URL }}-${{ env.REPO_BRANCH }}-${{ env.OPENWRT_DEVICE_TARGET }}-
@@ -116,7 +120,7 @@ jobs:
         ./scripts/feeds install -a
 
     - name: SSH connection to Actions
-      uses: P3TERX/ssh2actions@main
+      uses: P3TERX/ssh2actions@v1.0.0
       if: github.event.inputs.ssh == 'true' || contains(github.event.action, 'ssh')
       env:
         TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
@@ -147,7 +151,7 @@ jobs:
       run: df -hT
 
     - name: Upload Bin Directory
-      uses: actions/upload-artifact@main
+      uses: actions/upload-artifact@v4
       if: steps.compile.outputs.status == 'success' && env.UPLOAD_BIN_DIR == 'true' && !cancelled()
       with:
         name: OpenWrt_bin_${{ env.OPENWRT_DEVICE_TARGET }}_${{ env.OPENWRT_BUILD_DATE }}
@@ -161,19 +165,20 @@ jobs:
         cp $OPENWRT_PATH/.config $OPENWRT_PATH/upload/${{ env.FIRMWARE_TAG }}.config
         echo "OPENWRT_VERSION_KERNEL=$(find $OPENWRT_PATH/bin/targets/ -type f -name "*.manifest" -exec grep -oP '^kernel - \K[\d\.]+' {} \;)" >> $GITHUB_ENV
         
-        find $OPENWRT_PATH/bin/targets/ -iregex ".*\(buildinfo\|json\|sha256sums\|packages\)$" -exec rm -rf {} +
+        find $OPENWRT_PATH/bin/targets/ -maxdepth 2 -type f \( -name "sha256sums" -o -name "*.buildinfo" \) -exec mv -f {} $OPENWRT_PATH/upload/ \;
+        find $OPENWRT_PATH/bin/targets/ -iregex ".*\(json\|packages\)$" -exec rm -rf {} +
         find $OPENWRT_PATH/bin/targets/ -type f -exec mv -f {} $OPENWRT_PATH/upload/ \;
         echo "OPENWRT_FIRMWARE_PATH=$OPENWRT_PATH/upload" >> $GITHUB_ENV
 
     - name: Upload Firmware Directory
-      uses: actions/upload-artifact@main
+      uses: actions/upload-artifact@v4
       if: steps.compile.outputs.status == 'success' && env.UPLOAD_FIRMWARE == 'true' && !cancelled() 
       with:
         name: OpenWrt_firmware_${{ env.OPENWRT_DEVICE_TARGET }}_${{ env.OPENWRT_BUILD_DATE }}
         path: ${{ env.OPENWRT_FIRMWARE_PATH }}
 
     - name: Upload Firmware To Release
-      uses: ncipollo/release-action@main
+      uses: ncipollo/release-action@v1
       if: steps.compile.outputs.status == 'success' && env.UPLOAD_FIRMWARE == 'true' && !cancelled() 
       with:
         name: ${{ env.FIRMWARE_TAG }}_${{ env.OPENWRT_BUILD_DATE }}
@@ -186,4 +191,5 @@ jobs:
           - Source Code: ${{ env.REPO_URL }}
           - Branch: ${{ env.REPO_BRANCH }}
           - Default Login Address：192.168.50.1
+          - Upstream Commit：${{ env.OPENWRT_UPSTREAM_SHA }}
           - Firmware Kernel：${{ env.OPENWRT_VERSION_KERNEL }}
