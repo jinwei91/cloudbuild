@@ -21,7 +21,6 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           retain_days: 5
           keep_minimum_runs: 3
-          dry_run: true
 
       - name: Delete Old Releases
         uses: dev-drprasad/delete-older-releases@v0.3.4
