@@ -13,7 +13,7 @@
 # Update System Name
 find . -type f -exec sed -i 's/ImmortalWRT/ImmortalWrt/g' {} +
 
-# Default IP
+# Update Default IP
 sed -i 's/192\.168\.[0-9]*\.[0-9]*/192.168.50.1/g' package/base-files/files/bin/config_generate
 find ./feeds/luci/modules/luci-mod-system/ -type f -name 'flash.js' -exec sed -i 's/192\.168\.[0-9]*\.[0-9]*/192.168.50.1/g' {} +
 
