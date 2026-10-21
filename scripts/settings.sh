@@ -23,11 +23,6 @@ sed -i "s/(\(luciversion || ''\))/(\1) + (' \/ Built on $OPENWRT_BUILD_DATE')/g"
 
 # Update Default Theme
 sed -i "s/luci-theme-bootstrap/luci-theme-argon/g" $(find ./feeds/luci/collections/ -type f -name "Makefile")
-cd $GITHUB_WORKSPACE/$WORKING_DIR/package
-if [ -d *"luci-theme-argon"* ]; then
-	cd ./luci-theme-argon
-	sed -i "s/primary '.*'/primary '#31a1a1'/; s/'0.2'/'0.5'/; s/'600'/'normal'/" ./luci-app-argon-config/root/etc/config/argon
-fi
 
 cd $GITHUB_WORKSPACE/$WORKING_DIR
 
@@ -61,4 +56,5 @@ fi
 DTS_PATH="./target/linux/qualcommax/files/arch/arm64/boot/dts/qcom/"
 find $DTS_PATH -type f ! -iname '*nowifi*' -exec sed -i 's/ipq\(6018\|8074\).dtsi/ipq\1-nowifi.dtsi/g' {} +
 find $DTS_PATH -type f -name "ipq6018-nowifi.dtsi" -exec sed -i 's/reg = <0x0 0x4ab00000 0x0 0x[0-9a-f]\+>/reg = <0x0 0x4ab00000 0x0 0x3700000>/' {} +
+grep -rq "ipq6018-nowifi.dtsi" $DTS_PATH || { echo "::error::DTS nowifi swap failed"; exit 1; }
 #find $DTS_PATH -type f -name "ipq6018-common.dtsi" -exec perl -i -0777 -pe 's/opp-1608000000 {\s*opp-supported-hw = <0x1>;.*?}/opp-1608000000 {\n\t\topp-supported-hw = <0xf>;\n\t}/gs' {} +
