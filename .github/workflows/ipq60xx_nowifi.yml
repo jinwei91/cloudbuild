@@ -178,7 +178,7 @@ jobs:
 
     - name: Upload Firmware To Release
       uses: ncipollo/release-action@v1
-      if: steps.compile.outputs.status == 'success' && env.UPLOAD_FIRMWARE == 'true' && !cancelled() 
+      if: steps.compile.outputs.status == 'success' && env.UPLOAD_RELEASE == 'true' && !cancelled() 
       with:
         name: ${{ env.FIRMWARE_TAG }}_${{ env.OPENWRT_BUILD_DATE }}
         allowUpdates: true
