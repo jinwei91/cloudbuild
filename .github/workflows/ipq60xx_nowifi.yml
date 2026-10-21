@@ -166,6 +166,7 @@ jobs:
         find $OPENWRT_PATH/bin/targets/ -maxdepth 2 -type f \( -name "sha256sums" -o -name "*.buildinfo" \) -exec mv -f {} "$OPENWRT_PATH/upload/" \;
         find $OPENWRT_PATH/bin/targets/ -iregex ".*\(json\|packages\)$" -exec rm -rf {} +
         find $OPENWRT_PATH/bin/targets/ -type f -exec mv -f {} "$OPENWRT_PATH/upload/" \;
+        rm -f "$OPENWRT_PATH/upload/sha256sums"
         (cd "$OPENWRT_PATH/upload" && sha256sum -- * > sha256sums)
         ls -la "$OPENWRT_PATH/upload"
         echo "OPENWRT_FIRMWARE_PATH=$OPENWRT_PATH/upload" >> $GITHUB_ENV
