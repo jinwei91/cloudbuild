@@ -189,7 +189,7 @@ jobs:
           This is OpenWrt Firmware for ${{ env.FIRMWARE_TAG }}
           - Source Code: ${{ env.REPO_URL }}
           - Branch: ${{ env.REPO_BRANCH }}
-          - Upstream Commit：${{ env.OPENWRT_UPSTREAM_SHA }}
-          - Upstream Date：${{ env.OPENWRT_UPSTREAM_DATE }}
-          - Firmware Kernel：${{ env.OPENWRT_VERSION_KERNEL }}
-          - Default Login Address：192.168.50.1
+          - Upstream Commit: ${{ env.OPENWRT_UPSTREAM_SHA }}
+          - Upstream Date: ${{ env.OPENWRT_UPSTREAM_DATE }}
+          - Firmware Kernel: ${{ env.OPENWRT_VERSION_KERNEL }}
+          - Default Login Address: 192.168.50.1
