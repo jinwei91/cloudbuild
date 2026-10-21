@@ -135,7 +135,7 @@ jobs:
       run: |
         cd $OPENWRT_PATH
         make defconfig
-        make download -j$(nproc)
+        make download -j$(nproc) || make download -j1 || make download -j1 V=s
 
     - name: Compile Firmware
       id: compile
