@@ -26,13 +26,6 @@ sed -i "s/luci-theme-bootstrap/luci-theme-argon/g" $(find ./feeds/luci/collectio
 
 cd $GITHUB_WORKSPACE/$WORKING_DIR
 
-# Remove luci-app-attendedsysupgrade
-sed -i "/attendedsysupgrade/d" $(find ./feeds/luci/collections/ -type f -name "Makefile")
-ASU_FILE=$(find ./feeds/luci/applications/luci-app-attendedsysupgrade/ -type f -name "11_upgrades.js")
-if [ -f "$ASU_FILE" ]; then
-	rm -rf $ASU_FILE
-fi
-
 # Update Qualcomm DTS Files
 # q6_region reserved ram:
 # ipq6018.dtsi: 85MB, 0x05500000;
