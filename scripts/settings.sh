@@ -24,7 +24,6 @@ sed -i "s/(\(luciversion || ''\))/(\1) + (' \/ Built on $OPENWRT_BUILD_DATE')/g"
 # Update Default Theme
 sed -i "s/luci-theme-bootstrap/luci-theme-argon/g" $(find ./feeds/luci/collections/ -type f -name "Makefile")
 
-cd $GITHUB_WORKSPACE/$WORKING_DIR
 
 # Update Qualcomm DTS Files
 # q6_region reserved ram:
