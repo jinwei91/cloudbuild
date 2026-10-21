@@ -26,18 +26,6 @@ sed -i "s/luci-theme-bootstrap/luci-theme-argon/g" $(find ./feeds/luci/collectio
 
 cd $GITHUB_WORKSPACE/$WORKING_DIR
 
-# Update Boot Order of qca-nss-drv
-NSS_DRV="./feeds/nss_packages/qca-nss-drv/files/qca-nss-drv.init"
-if [ -f "$NSS_DRV" ]; then
-	sed -i 's/START=.*/START=85/g' $NSS_DRV
-fi
-
-# Update Boot Order of qca-nss-pbuf
-NSS_PBUF="./kernel/mac80211/files/qca-nss-pbuf.init"
-if [ -f "$NSS_PBUF" ]; then
-	sed -i 's/START=.*/START=86/g' $NSS_PBUF
-fi
-
 # Remove luci-app-attendedsysupgrade
 sed -i "/attendedsysupgrade/d" $(find ./feeds/luci/collections/ -type f -name "Makefile")
 ASU_FILE=$(find ./feeds/luci/applications/luci-app-attendedsysupgrade/ -type f -name "11_upgrades.js")
