@@ -9,19 +9,19 @@ permissions:
   contents: write
   actions: write
 
-env:
-  GITHUB_TOKEN: ${{
 
 jobs:
   cleanup:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Delete Workflow Runs
-        uses: Mattraks/delete-workflow-runs@v2
+        uses: Mattraks/delete-workflow-runs@v2.1.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           retain_days: 5
           keep_minimum_runs: 3
+          dry_run: true
 
       - name: Delete Old Releases
         uses: dev-drprasad/delete-older-releases@v0.3.4
