@@ -21,7 +21,8 @@ on:
         default: false
 
   schedule:
-    - cron: "0 0 * * 6" 
+    - cron: "20 0 * * 6"
+
 
 env:
   REPO_URL: https://github.com/VIKINGYFY/immortalwrt.git
