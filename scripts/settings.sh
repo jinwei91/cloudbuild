@@ -25,13 +25,6 @@ find ./feeds/luci/modules/luci-mod-status/ -type f -name "10_system.js" -exec se
 find ./feeds/luci/collections/ -type f -name "Makefile" -exec sed -i "s/luci-theme-bootstrap/luci-theme-argon/g" {} +
 
 # Update Qualcomm DTS Files
-# q6_region reserved ram:
-# ipq6018.dtsi: 85MB, 0x05500000;
-# ipq6018-512m.dtsi: 55MB, 0x3700000;
-# 16MB: 0x01000000;
-# 32MB: 0x02000000;
-# 64MB: 0x04000000;
-# 96MB: 0x06000000;
 DTS_PATH="./target/linux/qualcommax/dts/"
 find $DTS_PATH -type f ! -iname '*nowifi*' -exec sed -i 's/ipq\(6018\|8074\).dtsi/ipq\1-nowifi.dtsi/g' {} +
 find $DTS_PATH -type f -name "ipq6018-nowifi.dtsi" -exec sed -i 's/reg = <0x0 0x4ab00000 0x0 0x[0-9a-f]\+>/reg = <0x0 0x4ab00000 0x0 0x3700000>/' {} +
