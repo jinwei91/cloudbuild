@@ -45,7 +45,7 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7.0.1
       
     - name: Check Server Info.
       run: |
@@ -91,7 +91,7 @@ jobs:
         $GITHUB_WORKSPACE/$SCRIPT_PACKAGES
 
     - name: Check Caches
-      uses: actions/cache@v4
+      uses: actions/cache@v6.1.0
       with:
         key: ${{ env.REPO_URL }}-${{ env.REPO_BRANCH }}-${{ env.OPENWRT_DEVICE_TARGET }}-${{ env.OPENWRT_BUILD_DATE }}
         restore-keys: ${{ env.REPO_URL }}-${{ env.REPO_BRANCH }}-${{ env.OPENWRT_DEVICE_TARGET }}-
@@ -149,7 +149,7 @@ jobs:
       run: df -hT
 
     - name: Upload Bin Directory
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7.0.2
       if: steps.compile.outputs.status == 'success' && env.UPLOAD_BIN_DIR == 'true' && !cancelled()
       with:
         name: OpenWrt_bin_${{ env.OPENWRT_DEVICE_TARGET }}_${{ env.OPENWRT_BUILD_DATE }}
@@ -170,14 +170,14 @@ jobs:
         echo "OPENWRT_FIRMWARE_PATH=$OPENWRT_PATH/upload" >> $GITHUB_ENV
 
     - name: Upload Firmware Directory
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7.0.2
       if: steps.compile.outputs.status == 'success' && env.UPLOAD_FIRMWARE == 'true' && !cancelled() 
       with:
         name: OpenWrt_firmware_${{ env.OPENWRT_DEVICE_TARGET }}_${{ env.OPENWRT_BUILD_DATE }}
         path: ${{ env.OPENWRT_FIRMWARE_PATH }}
 
     - name: Upload Firmware To Release
-      uses: ncipollo/release-action@v1
+      uses: ncipollo/release-action@v1.21.0
       if: steps.compile.outputs.status == 'success' && env.UPLOAD_RELEASE == 'true' && !cancelled() 
       with:
         name: ${{ env.FIRMWARE_TAG }}_${{ env.OPENWRT_BUILD_DATE }}
