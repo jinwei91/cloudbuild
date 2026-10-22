@@ -22,9 +22,30 @@ jobs:
           keep_minimum_runs: 3
 
       - name: Delete Old Releases
-        uses: dev-drprasad/delete-older-releases@v0.3.4
+        uses: actions/github-script@v9
         with:
-          keep_latest: 3
-          delete_tags: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const keep = 3;
+            const releases = await github.paginate(github.rest.repos.listReleases, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              per_page: 100,
+            });
+            for (const r of releases.slice(keep)) {
+              core.info('delete release ' + r.tag_name);
+              await github.rest.repos.deleteRelease({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                release_id: r.id,
+              });
+              try {
+                await github.rest.git.deleteRef({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  ref: 'tags/' + r.tag_name,
+                });
+              } catch (e) {
+                core.warning('tag ' + r.tag_name + ' not deleted: ' + e.message);
+              }
+            }
