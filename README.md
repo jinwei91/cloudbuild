@@ -23,7 +23,6 @@
 
 - **每周六 08:00（UTC+8）** 定时构建
 - 手动触发：Actions → OpenWrt Build → Run workflow（可选 SSH 调试模式）
-- 构建失败时 Telegram 通知
 
 ## 仓库结构
 
