@@ -34,7 +34,7 @@ env:
   UPLOAD_BIN_DIR: false
   UPLOAD_FIRMWARE: true
   UPLOAD_RELEASE: true
-  FIRMWARE_TAG: ipq60xx-nowifi-6.x
+  FIRMWARE_TAG: ipq60xx-nowifi-6.x-ppe
   TZ: Asia/Shanghai
 
 permissions:
