@@ -4,7 +4,7 @@
 
 ## 固件
 
-- **ImmortalWrt**（[VIKINGYFY](https://github.com/VIKINGYFY/immortalwrt)，main 分支）· 6.x 内核 · NSS 硬件加速
+- **ImmortalWrt**（[VIKINGYFY](https://github.com/VIKINGYFY/immortalwrt)，owrt 分支）· 6.18 内核
 - 无 WiFi 版本：ath11k / wpad / hostapd 全部排除，纯有线场景
 - 默认 LAN：192.168.50.1
 
