@@ -28,7 +28,7 @@ env:
   REPO_URL: https://github.com/VIKINGYFY/immortalwrt.git
   REPO_BRANCH: owrt
   WORKING_DIR: openwrt
-  CONFIG_FILE: configs/ipq60xx_nowifi_6.x.config
+  CONFIG_FILE: configs/ipq60xx_nowifi_6.x.config.ppe
   SCRIPT_PACKAGES: scripts/packages.sh
   SCRIPT_SETTINGS: scripts/settings.sh
   UPLOAD_BIN_DIR: false
