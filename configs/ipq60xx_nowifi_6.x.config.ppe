@@ -41,7 +41,6 @@ CONFIG_PACKAGE_kmod-nft-xfrm=y
 
 # Network Support
 CONFIG_PACKAGE_kmod-tls=y
-CONFIG_PACKAGE_dcb=n
 
 # QoS
 CONFIG_PACKAGE_qca-ppe-qos=y
