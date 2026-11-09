@@ -61,6 +61,7 @@ CONFIG_PACKAGE_kmod-fs-f2fs=n
 CONFIG_PACKAGE_kmod-ath11k=n
 CONFIG_PACKAGE_kmod-ath11k-ahb=n
 CONFIG_PACKAGE_kmod-ath11k-pci=n
+CONFIG_PACKAGE_kmod-nss-wifi-drv=n
 
 ## Luci
 CONFIG_PACKAGE_default-settings=y
