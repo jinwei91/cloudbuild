@@ -61,9 +61,6 @@ jobs:
         DEBIAN_FRONTEND: noninteractive
       run: |
         sudo docker image prune --all --force
-        sudo apt-get -yqq update
-        sudo apt-get -yqq upgrade
-        sudo apt-get -yqq full-upgrade
         sudo -E apt -yqq purge firefox
         sudo -E apt -yqq autoremove --purge
         sudo apt-get -yqq install dos2unix libfuse-dev python3-setuptools
