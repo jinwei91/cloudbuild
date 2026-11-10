@@ -32,8 +32,8 @@ jobs:
               continue
             fi
             echo "Delete release: $tag"
-            gh release delete "$tag" --yes --cleanup-tag
+            gh release delete "$tag" --repo "$GITHUB_REPOSITORY" --yes --cleanup-tag
           done < <(
-            gh release list --limit 1000 --json tagName,createdAt \
+            gh release list --repo "$GITHUB_REPOSITORY" --limit 1000 --json tagName,createdAt \
               --jq 'sort_by(.createdAt) | reverse | .[3:] | .[].tagName'
           )
