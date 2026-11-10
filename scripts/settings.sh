@@ -27,3 +27,24 @@ find ./feeds/luci/collections/ -type f -name "Makefile" -exec sed -i "s/luci-the
 # Update Qualcomm DTS Files
 DTS_PATH="./target/linux/qualcommax/dts/"
 find $DTS_PATH -type f ! -iname '*nowifi*' -exec sed -i 's/ipq\(6018\|8074\).dtsi/ipq\1-nowifi.dtsi/g' {} +
+
+# sing-box: build from iskhakovt fork @ dfd19d1 (= v1.14.3 + REALITY X25519MLKEM768 fix)
+SB_DIR="$(find feeds -maxdepth 5 -type d -path '*/net/sing-box' | head -n1)"
+FORK_SHA=dfd19d104fd1dbed9428694e166bf79283c73686
+if [ -n "$SB_DIR" ] && [ -f "$SB_DIR/Makefile" ]; then
+  sed -i '/^PKG_BUILD_DIR:=/d' "$SB_DIR/Makefile"
+  sed -i \
+    -e "s|^PKG_SOURCE:=.*|PKG_SOURCE:=sing-box-$FORK_SHA.tar.gz|" \
+    -e "s|^PKG_SOURCE_URL:=.*|PKG_SOURCE_URL:=https://codeload.github.com/iskhakovt/sing-box/tar.gz/$FORK_SHA?|" \
+    -e "s|^PKG_HASH:=.*|PKG_HASH:=fe49aa96ee214b3911a44fc5a6d6c5d180008b38f86fbfabb6692dbb8e8b2fd1|" \
+    -e "s|^PKG_RELEASE:=.*|PKG_RELEASE:=2|" \
+    -e "/^PKG_HASH:=/a PKG_BUILD_DIR:=\$(BUILD_DIR)/sing-box-$FORK_SHA" \
+    "$SB_DIR/Makefile"
+  for k in "PKG_SOURCE:=sing-box-$FORK_SHA.tar.gz" "PKG_HASH:=fe49aa96" "PKG_BUILD_DIR:=."; do
+    grep -q "^$k" "$SB_DIR/Makefile" || { echo "::error::sing-box source rewrite failed: $k"; exit 1; }
+  done
+  echo "sing-box source -> iskhakovt/sing-box@$FORK_SHA"
+else
+  echo "::error::feeds/packages/net/sing-box not found"
+  exit 1
+fi
