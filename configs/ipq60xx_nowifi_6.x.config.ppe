@@ -83,7 +83,6 @@ CONFIG_PACKAGE_luci-app-uhttpd=y
 CONFIG_PACKAGE_luci-app-upnp=y
 CONFIG_PACKAGE_luci-app-wol=y
 CONFIG_PACKAGE_luci-app-zerotier=y
-CONFIG_PACKAGE_luci-i18n-qca-ppe-qos-zh-cn=y
 
 # Themes
 CONFIG_PACKAGE_luci-theme-argon=y
