@@ -29,6 +29,7 @@ DTS_PATH="./target/linux/qualcommax/dts/"
 find $DTS_PATH -type f ! -iname '*nowifi*' -exec sed -i 's/ipq\(6018\|8074\).dtsi/ipq\1-nowifi.dtsi/g' {} +
 
 # sing-box: build from iskhakovt fork @ dfd19d1 (= v1.14.3 + REALITY X25519MLKEM768 fix)
+# fix: https://github.com/SagerNet/sing-box/issues/4520
 SB_DIR="$(find feeds -maxdepth 5 -type d -path '*/net/sing-box' | head -n1)"
 FORK_SHA=dfd19d104fd1dbed9428694e166bf79283c73686
 if [ -n "$SB_DIR" ] && [ -f "$SB_DIR/Makefile" ]; then
